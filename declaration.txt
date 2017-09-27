@@ -1,0 +1,12 @@
+\/*__DECLARATION__
+ *
+ * 
+ *      TTESSIM
+ *      simulation of operating a thermocline thermal energy storage unit
+ *      
+ *
+ * 
+ *      author: david schmidig [     david@davencyw.net   ]
+ *      ETH Zurich             [ davschmi@student.ethz.ch ]
+ *      DAVENCYW CODE          [        davencyw.net      ]
+ *\/
