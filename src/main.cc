@@ -6,10 +6,12 @@
 
 #include "simenv.hh"
 #include "cmdparser.hh"
+#include "tstorageunit/tstorageunit.hh"
 
 int main(int argc, char const *argv[]) {
 
   // parse command line arguments
+  SimEnv simenv;
   cmdpars(argc, argv, simenv);
 
   // create terminal output
@@ -26,7 +28,7 @@ int main(int argc, char const *argv[]) {
             << "        ETH Zurich\n\n\n";
 
   // start main program
-  // TODO(dave): everything
+  Tstorageunit tsunit(simenv);
 
   return 0;
 }

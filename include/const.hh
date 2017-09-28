@@ -1,8 +1,9 @@
 /*__DECLARATION__
  *
  * 
- *      PROJECTNAME
- *      FULLPROJECTNAME-SHORTDESCRIPTION
+ *      TTESSIM
+ *      simulation of operating a thermocline thermal energy storage unit at high temperatures
+ *      
  *
  * 
  *      author: david schmidig [     david@davencyw.net   ]

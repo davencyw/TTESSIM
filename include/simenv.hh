@@ -1,8 +1,9 @@
 /*__DECLARATION__
  *
  * 
- *      PROJECTNAME
- *      FULLPROJECTNAME-SHORTDESCRIPTION
+ *      TTESSIM
+ *      simulation of operating a thermocline thermal energy storage unit at high temperatures
+ *      
  *
  * 
  *      author: david schmidig [     david@davencyw.net   ]
@@ -14,23 +15,29 @@
 
 #include <string>
 
+#include "global.hh"
+
 struct SimEnv
 {
 		
 	//physical environment
 	//____________________
 
-	//timestep
-	double _dt;
-	//number of steps
-	int _nsteps;
+	//number of cells
+	int _numcells;
+	// height of storage unit (cylindrical)
+	double _storage_height;
+	//diameter of storage unit (cylindrical)
+	double _storage_diameter;
+	//initial temperature of fluid
+	double _fluid_initemp;
 
 
 	//computing environment
 	//____________________
 	
 	//number of threads
-	int _nthreads;
+	int _nThreads;
 	//omp scheduling
 	int _scheduling;
 	//cuda enabled
@@ -39,6 +46,7 @@ struct SimEnv
 
 	//data environment
 	//____________________
+	std::string _outfolder;
 
 };
 

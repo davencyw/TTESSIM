@@ -1,14 +1,18 @@
 /*__DECLARATION__
  *
  * 
- *      PROJECTNAME
- *      FULLPROJECTNAME-SHORTDESCRIPTION
+ *      TTESSIM
+ *      simulation of operating a thermocline thermal energy storage unit at high temperatures
+ *      
  *
  * 
  *      author: david schmidig [     david@davencyw.net   ]
  *      ETH Zurich             [ davschmi@student.ethz.ch ]
  *      DAVENCYW CODE          [        davencyw.net      ]
  */
+#ifndef __CMDPARSER_HH__
+#define __CMDPARSER_HH__
+
 #include <cstdlib>
 #include <string>
 #include "boost/program_options.hpp"
@@ -20,21 +24,22 @@ void cmdpars(int argc, char const* argv[], SimEnv& simenv){
 
 
 	//set default simenv
-	simenv._N = N;
-	simenv._dt = DT;
-	simenv._nThreads = NTHREADS;
-	simenv._scheduling = SCHEDULE;
-	simenv._cuda = CUDA;
+	simenv._nThreads = __P_DEF_NTHREADS;
+	simenv._scheduling = __P_DEF_SCHEDULE;
+	simenv._cuda = __P_DEF_CUDA;
+  simenv._outfolder = __P_DEF_OUTFOLDER;
 
 
 	//BOOST PRORGAM OPTIONS
 	namespace po = boost::program_options;
 	po::options_description desc("Parameters");
 	desc.add_options() 
-      //("help", "Print help messages") 
-      //(",N", po::value<int>(&(simenv._N)) ,"number of bodies") 
-      //(",t", po::value<double>(&(simenv._dt))->required() ,"timestep of simulation")
-      //("xbod,x", po::value<std::string>(&(simenv._xbodpath))->required(), "file to x coordinates array")
+      ("help", "Print help messages") 
+      (",N", po::value<int>(&(simenv._numcells))->required() ,"number of cells") 
+      (",h", po::value<double>(&(simenv._storage_height))->required() ,"storage height")
+      (",d", po::value<double>(&(simenv._storage_diameter))->required(), "storage diameter")
+      (",t", po::value<double>(&(simenv._fluid_initemp))->required(), "initial temperature of fluid")
+      (",o", po::value<std::string>(&(simenv._outfolder)), "output folder [optional]")
       ("nthreads,n", po::value<int>(&(simenv._nThreads)) ,"number of threads [optional]")
       ("schedule,s", po::value<int>(&(simenv._scheduling)) ,"omp scheduling [optional]")
       ("cuda", "enable cuda support [optional]");
@@ -67,9 +72,22 @@ void cmdpars(int argc, char const* argv[], SimEnv& simenv){
       exit(1); 
     } 
 
-
     //sanity check input
+    if(simenv._nThreads > 256){
+      std::cerr << "MISCONFIG: nThreads = "<<simenv._nThreads<<std::endl;
+      exit(1);
+    }
+
+    if(simenv._numcells > 10e10){
+      std::cerr << "MISCONFIG: numcells = "<<simenv._numcells<<std::endl;
+      exit(1);
+    }
+    //TODO(dave): sanitize folder input with trailing slash
+
+
 
 	//END BOOST PROGRAM OPTIONS
 
 }
+
+#endif //__CMDPARSER_HH__

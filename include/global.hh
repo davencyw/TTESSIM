@@ -1,8 +1,9 @@
 /*__DECLARATION__
  *
  * 
- *      PROJECTNAME
- *      FULLPROJECTNAME-SHORTDESCRIPTION
+ *      TTESSIM
+ *      simulation of operating a thermocline thermal energy storage unit at high temperatures
+ *      
  *
  * 
  *      author: david schmidig [     david@davencyw.net   ]
@@ -13,9 +14,12 @@
 #define __GLOBAL_HH__
 
 //program properties
-#define __P_NAME "programmname"
+#define __P_NAME "ttessim"
+#define __P_DEF_NTHREADS 4
+#define __P_DEF_SCHEDULE 1
+#define __P_DEF_CUDA false
+#define __P_DEF_OUTFOLDER "./"
 
 //typedefs
-typename 
 
 #endif //__GLOBAL_HH__

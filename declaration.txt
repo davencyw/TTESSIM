@@ -2,7 +2,7 @@
  *
  * 
  *      TTESSIM
- *      simulation of operating a thermocline thermal energy storage unit
+ *      simulation of operating a thermocline thermal energy storage unit at high temperatures
  *      
  *
  * 
