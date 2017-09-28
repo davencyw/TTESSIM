@@ -29,6 +29,7 @@ int main(int argc, char const *argv[]) {
 
   // start main program
   Tstorageunit tsunit(simenv);
+  tsunit.writetocsv();
 
   return 0;
 }

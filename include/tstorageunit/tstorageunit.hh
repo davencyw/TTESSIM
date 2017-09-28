@@ -18,6 +18,8 @@
 #include "simenv.hh"
 
 #include <string>
+#include <ctime>
+#include <functional>
 
 class Tstorageunit
 {
@@ -25,6 +27,8 @@ public:
 	Tstorageunit(SimEnv& simenv) : _simenv(simenv){
 
 		//TODO(dave): Initialization
+
+	_simenv._runhash = std::time(0);
 	};
 
 	//step-by-step simulation

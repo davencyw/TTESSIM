@@ -1,10 +1,11 @@
 #!/bin/bash
 
 #variables and parameters
-DT= 1
-N=100
-TODO="addmore"
-
+NCELLS=256
+HEIGHT=33
+DIAMETER=6
+INITTEMP=294
+OUTFOLDER="data/out/"
 
 #___________________________
 
@@ -16,3 +17,9 @@ echo "______\n\n"
 sh make.sh
 
 #run
+./build/bin/ttessim						\
+						-N $NCELLS		\
+						-h $HEIGHT		\
+						-d $DIAMETER	\
+						-t $INITTEMP	\
+						-o $OUTFOLDER
