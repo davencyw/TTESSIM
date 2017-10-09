@@ -37,6 +37,7 @@ public:
 	bool simsteps(const int);
 
 	const int getstate();
+	const bool isidle();
 
 	//output functions
 	const bool writetocsv();

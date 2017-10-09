@@ -17,7 +17,7 @@ for file in $(find $injectfolder -name '*.hh'); do
 	nextline=firstline
 	if [[ "$firstline" == "$startsym" ]]; then
 		declarationexists=true
-		#remove each line until endsym is reached
+		#count lines until endsym is reached
 		while [[ "$nextline" != "$endsym" ]] &&  [[ "$numline" -lt "$maxlines" ]]; do
 		numline=$((numline + 1))
 		nextline=$(sed -n "$numline p" $file)
