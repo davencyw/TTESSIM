@@ -18,7 +18,6 @@
 #include "simenv.hh"
 
 #include <string>
-#include <ctime>
 #include <functional>
 
 class Tstorageunit
@@ -28,15 +27,19 @@ public:
 
 		//TODO(dave): Initialization
 
-	_simenv._runhash = std::time(0);
+	_state = 0;
+
+
 	};
 
 	//step-by-step simulation
 	bool simstep();
-	bool simsteps(int);
+	bool simsteps(const int);
+
+	const int getstate();
 
 	//output functions
-	bool writetocsv();
+	const bool writetocsv();
 
 private:
 	//simulation environment
@@ -47,6 +50,12 @@ private:
 	//TODO(dave): smart pointers!
 	double* _fluid_temperature;
 	double* _solid_temperature;
+	//state
+	//0 = charging (+)
+	//1 = discharging (-)
+	//2 = idle between charging and discharging (+-)
+	//3 = idle between discharging and charging (-+)
+	int _state;
 };
 
 

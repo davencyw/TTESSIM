@@ -12,11 +12,15 @@ bool Tstorageunit::simstep(){
 	//TODO(dave): implement
 }
 
-bool Tstorageunit::simsteps(int steps){
+bool Tstorageunit::simsteps(const int steps){
 	//TODO(dave): implement
 }
 
-bool Tstorageunit::writetocsv(){
+const int Tstorageunit::getstate(){
+	return _state;
+}
+
+const bool Tstorageunit::writetocsv(){
 	std::string filename("r_"+ std::to_string(_simenv._runhash) + "_" + std::to_string(_total_time) + ".csv");
 	std::string fullpath(_simenv._outfolder + filename);
 

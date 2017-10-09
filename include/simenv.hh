@@ -32,6 +32,11 @@ struct SimEnv
 	//initial temperature of fluid
 	double _fluid_initemp;
 
+	//times for states
+	double _timedurstate0;
+	double _timedurstate1;
+	double _timedurstate2;
+	double _timedurstate3;
 
 	//computing environment
 	//____________________
@@ -42,7 +47,10 @@ struct SimEnv
 	int _scheduling;
 	//cuda enabled
 	bool _cuda;
-
+	//number of cycles
+	int _numcycles;
+	//tsteps per cycle;
+	int _tsteppercycle;
 
 	//data environment
 	//____________________

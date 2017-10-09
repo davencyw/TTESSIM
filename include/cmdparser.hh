@@ -15,6 +15,7 @@
 
 #include <cstdlib>
 #include <string>
+#include <ctime>
 #include "boost/program_options.hpp"
 
 #include "simenv.hh"
@@ -29,6 +30,8 @@ void cmdpars(int argc, char const* argv[], SimEnv& simenv){
 	simenv._cuda = __P_DEF_CUDA;
   simenv._outfolder = __P_DEF_OUTFOLDER;
 
+  //runhash
+  simenv._runhash = std::time(0);
 
 	//BOOST PRORGAM OPTIONS
 	namespace po = boost::program_options;
@@ -39,6 +42,12 @@ void cmdpars(int argc, char const* argv[], SimEnv& simenv){
       (",h", po::value<double>(&(simenv._storage_height))->required() ,"storage height")
       (",d", po::value<double>(&(simenv._storage_diameter))->required(), "storage diameter")
       (",t", po::value<double>(&(simenv._fluid_initemp))->required(), "initial temperature of fluid")
+      ("tds0", po::value<double>(&(simenv._timedurstate0))->required(), "time duration for state 0")
+      ("tds1", po::value<double>(&(simenv._timedurstate1))->required(), "time duration for state 1")
+      ("tds2", po::value<double>(&(simenv._timedurstate2))->required(), "time duration for state 2")
+      ("tds3", po::value<double>(&(simenv._timedurstate3))->required(), "time duration for state 3")
+      ("numcycles,c", po::value<int>(&(simenv._numcycles))->required(), "number of cycles")
+      ("tstbc,b", po::value<int>(&(simenv._tsteppercycle))->required(), "timesteps between cycless")
       (",o", po::value<std::string>(&(simenv._outfolder)), "output folder [optional]")
       ("nthreads,n", po::value<int>(&(simenv._nThreads)) ,"number of threads [optional]")
       ("schedule,s", po::value<int>(&(simenv._scheduling)) ,"omp scheduling [optional]")
