@@ -17,7 +17,21 @@ bool Tstorageunit::simsteps(const int steps){
 }
 
 bool Tstorageunit::simsteps(const int steps, const int outputnstep){
-	//TODO(dave): implement
+	//TODO(dave): output(writetocsv)
+	int opns(outputnstep);
+
+	if(!outputnstep)
+		opns = steps;
+
+	//avoid if with double loop
+	for(const int stepi(0); stepi < steps;){
+		for(const int stepj(0); stepj < opns; ++stepj){
+		simstep();
+		}
+		//output every outputnstep steps
+		writetocsv();
+		stepi += opns;
+	}
 }
 
 const int Tstorageunit::getstate(){
