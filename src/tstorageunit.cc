@@ -13,6 +13,10 @@ bool Tstorageunit::simstep(){
 }
 
 bool Tstorageunit::simsteps(const int steps){
+	return simsteps(steps,0);
+}
+
+bool Tstorageunit::simsteps(const int steps, const int outputnstep){
 	//TODO(dave): implement
 }
 

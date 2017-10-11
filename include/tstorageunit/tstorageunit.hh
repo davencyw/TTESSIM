@@ -35,6 +35,7 @@ public:
 	//step-by-step simulation
 	bool simstep();
 	bool simsteps(const int);
+	bool simsteps(const int, const int);
 
 	const int getstate();
 	const bool isidle();
