@@ -1,4 +1,4 @@
-#TTESSIM
+# TTESSIM
 
 Simulation of a thermocline thermal energy storage operation at high temperatures. A thermocline storage is a storage in which
 hot and cold temperatures coexist, leading to a vertical temperature gradient. This simulation targets a specific type of thermicline storage that is filled with a solid storage medium.
