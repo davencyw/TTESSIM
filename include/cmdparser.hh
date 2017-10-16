@@ -53,6 +53,8 @@ void cmdpars(int argc, char const* argv[], SimEnv& simenv){
       ("cf", po::value<double>(&(simenv._cf))->required(), "cf")
       ("cs", po::value<double>(&(simenv._cs))->required(), "cs")
       ("epsilon", po::value<double>(&(simenv._epsilon))->required(), "epsilon")
+      ("uf", po::value<double>(&(simenv._uf))->required(), "uf")
+      ("dt", po::value<double>(&(simenv._deltat))->required(), "timestepsize")
       ("numcycles,c", po::value<int>(&(simenv._numcycles))->required(), "number of cycles")
       ("tstbc,b", po::value<int>(&(simenv._tsteppercycle))->required(), "timesteps between cycless")
       (",o", po::value<std::string>(&(simenv._outfolder)), "output folder [optional]")
@@ -101,8 +103,6 @@ void cmdpars(int argc, char const* argv[], SimEnv& simenv){
     //TODO(dave): sanitize folder input with trailing slash
 
 
-
-	//END BOOST PROGRAM OPTIONS
 
 }
 

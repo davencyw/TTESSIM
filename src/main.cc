@@ -15,14 +15,11 @@ int main(int argc, char const *argv[]) {
   cmdpars(argc, argv, simenv);
 
   // create terminal output
-  std::cout << "\n"
-            << "\n"
-            << "\n"
-            << "\n"
-            << "\n"
-            << "\n"
-            << "\n"
-            << "\n\n"
+  std::cout << "\n\n\n\n\n"
+            <<"_______ _______ _______ _______ _______ _____ _______\n"
+            <<"   |       |    |______ |______ |______   |   |  |  |\n"
+            <<"   |       |    |______ ______| ______| __|__ |  |  |\n"
+            << "\n\n\n\n"
             << "author: david schmidig [david@davencyw.net]\n"
             << "        davencyw code  [davencyw.net]\n"
             << "        ETH Zurich\n\n\n";

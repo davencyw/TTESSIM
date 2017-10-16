@@ -21,5 +21,6 @@
 #define __P_DEF_OUTFOLDER "./"
 
 //typedefs
+ typedef double precision_t;
 
 #endif //__GLOBAL_HH__

@@ -5,7 +5,7 @@
 #terminal notification
 echo "______\n"
 echo "make.sh"
-echo "______\n\n"
+echo "______\n"
 
 #make
 cd build

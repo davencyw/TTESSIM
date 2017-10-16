@@ -16,21 +16,34 @@
 #include "global.hh"
 #include "const.hh"
 #include "simenv.hh"
+#include "pdesolver/pdesolver.hh"
 
 #include <string>
 #include <functional>
+#include <immintrin.h>
 
 class Tstorageunit
 {
 public:
-	Tstorageunit(SimEnv& simenv) : _simenv(simenv){
-
-		//TODO(dave): Initialization
+	Tstorageunit(const SimEnv& simenv) : _simenv(simenv){
 
 	_state = 0;
+  	_fluid_temperature 		= (precision_t *) _mm_malloc(sizeof(precision_t)*_simenv._numcells, 32);
+  	_solid_temperature 		= (precision_t *) _mm_malloc(sizeof(precision_t)*_simenv._numcells, 32);
+  	_fluid_temperature_o 	= (precision_t *) _mm_malloc(sizeof(precision_t)*_simenv._numcells, 32);
+  	_solid_temperature_o 	= (precision_t *) _mm_malloc(sizeof(precision_t)*_simenv._numcells, 32);
 
+  	 _pdesolver = Pdesolver(&simenv);
 
 	};
+
+	~Tstorageunit(){
+
+		_mm_free(_fluid_temperature);
+		_mm_free(_fluid_temperature_o);
+		_mm_free(_solid_temperature);
+		_mm_free(_solid_temperature_o);
+	}
 
 	//step-by-step simulation
 	bool simstep();
@@ -45,19 +58,23 @@ public:
 
 private:
 	//simulation environment
-	SimEnv _simenv;
+	const SimEnv _simenv;
 
 	//physical properties of system
-	double _total_time;
-	//TODO(dave): smart pointers!
-	double* _fluid_temperature;
-	double* _solid_temperature;
+	precision_t _total_time;
+	precision_t* _fluid_temperature __attribute__ ((aligned (32)));
+	precision_t* _solid_temperature __attribute__ ((aligned (32)));
+	precision_t* _fluid_temperature_o __attribute__ ((aligned (32)));
+	precision_t* _solid_temperature_o __attribute__ ((aligned (32)));
 	//state
 	//0 = charging (+)
 	//1 = discharging (-)
 	//2 = idle between charging and discharging (+-)
 	//3 = idle between discharging and charging (-+)
 	int _state;
+
+	Pdesolver _pdesolver;
+
 };
 
 

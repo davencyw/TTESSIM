@@ -45,6 +45,8 @@ const bool Tstorageunit::writetocsv(){
 	std::string filename("r_"+ std::to_string(_simenv._runhash) + "_" + std::to_string(_total_time) + ".csv");
 	std::string fullpath(_simenv._outfolder + filename);
 
+	std::cout<<fullpath<<std::endl;
+
 	std::ofstream filestream(fullpath, std::ofstream::out);
 
 	//TODO(dave): write data (!!! don't use std::endl, use "\n")

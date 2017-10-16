@@ -14,7 +14,7 @@ if (NOT CMAKE_BUILD_TYPE)
       "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif ()
 
-SET (RELEASE_FLAGS " -std=c++11 -O3 -march=native -ftree-vectorize -fopenmp -lboost_program_options -lboost_filesystem -lboost_system -mtune=native ")
+SET (RELEASE_FLAGS " -std=c++11 -O3 -march=native -ftree-vectorize -fopenmp -lboost_program_options -lboost_filesystem -lboost_system -mtune=native -fopt-info-vec-optimized -fstrict-aliasing")
 # SET (DEBG_CMAKE_CXX_FLAGS "-Werror -Wall -g")
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
@@ -46,6 +46,7 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 file (GLOB SOURCES
 		src/main.cc
 		src/tstorageunit.cc
+		src/pdesolver.cc
 )
 
 

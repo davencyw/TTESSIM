@@ -31,6 +31,8 @@ struct SimEnv
 	double _storage_diameter;
 	//initial temperature of fluid
 	double _fluid_initemp;
+	//timestepsize
+	double _deltat;
 
 	//times for states
 	double _timedurstate0;
@@ -46,6 +48,7 @@ struct SimEnv
 	double _cf;
 	double _cs;
 	double _epsilon;
+	double _uf;
 
 
 	//computing environment
