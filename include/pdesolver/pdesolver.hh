@@ -40,20 +40,17 @@ public:
 
 	};
 
-	bool solvefluid(precision_t* fluid_temperature, precision_t* fluid_temperature_o);
-	bool solvesolid(precision_t* solid_temperature, precision_t* solid_temperature_o);
+	void solvefluid(precision_t* fluid_temperature, precision_t* fluid_temperature_o);
+	void solvesolid(precision_t* solid_temperature, precision_t* solid_temperature_o);
 
 	//These functions solve the governing fluid and
 	//solid equations for a MMS given the slack term as
 	//default or passed lambda expression.
-	bool verifyfluid();
+	bool verifyfluid(const int n);
 	bool verfiysolid();
 
 
 private:
-	std::function<precision_t(precision_t)> _slackfluid;
-	std::function<precision_t(precision_t)> _slacksolid;
-
 	const SimEnv* _simenv;
 
 	precision_t _dt;

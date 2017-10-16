@@ -16,9 +16,9 @@ int main(int argc, char const *argv[]) {
 
   // create terminal output
   std::cout << "\n\n\n\n\n"
-            <<"_______ _______ _______ _______ _______ _____ _______\n"
-            <<"   |       |    |______ |______ |______   |   |  |  |\n"
-            <<"   |       |    |______ ______| ______| __|__ |  |  |\n"
+            <<"_______ _______ _______ _______ _______     _______\n"
+            <<"   |       |    |______ |______ |______  |  |  |  |\n"
+            <<"   |       |    |______ ______| ______|  |  |  |  |\n"
             << "\n\n\n\n"
             << "author: david schmidig [david@davencyw.net]\n"
             << "        davencyw code  [davencyw.net]\n"

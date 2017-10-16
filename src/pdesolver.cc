@@ -6,8 +6,9 @@
 #include <stdio.h>
 
 #include <algorithm>
+#include <cmath>
 
-bool Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precision_t* __restrict__ fluid_temperature_o){
+void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precision_t* __restrict__ fluid_temperature_o){
 	
 	//Loop over inner N-2 cells
 	
@@ -16,7 +17,7 @@ bool Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precisio
 	#elif __GNUC__
 	#pragma GCC ivdep
 	#endif
-	
+
 	for (int i = 1; i < _simenv->_numcells-1; ++i)
 	{		const precision_t tfi = fluid_temperature[i];
 			const precision_t tfim1 = fluid_temperature[i-1];
@@ -33,7 +34,7 @@ bool Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precisio
 }
 
 
-bool Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precision_t* __restrict__ solid_temperature_o){
+void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precision_t* __restrict__ solid_temperature_o){
 
 	//Loop over inner N-2 cells
 	
@@ -52,10 +53,23 @@ bool Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precisio
 		solid_temperature_o[i] = tsi + _alphafidx2dt * (tsip1 - 2 * tsi + tsim1);
 	}
 
-
 	//TODO(dave):
 	//Boundary cells
 
 	//swap pointers
 	std::swap(solid_temperature, solid_temperature_o);
 }
+
+
+	bool Pdesolver::verifyfluid(const int n){
+
+		const int k(2 * __SC_PI * n * _simenv->_storage_height);		
+		const auto solution = [&k] (precision_t x) {return std::cos(k * x);};
+		const auto slack = [&k] (precision_t x, precision_t uf, precision_t alphaf) {return uf * std::sin(k*x) - alphaf * k * k * std::cos(k*x);};
+
+
+
+	};
+	bool Pdesolver::verfiysolid(){
+		//TODO(dave): implement
+	};
