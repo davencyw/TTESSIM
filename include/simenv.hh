@@ -38,6 +38,16 @@ struct SimEnv
 	double _timedurstate2;
 	double _timedurstate3;
 
+	//fluid properties
+	double _kf;
+	double _ks;
+	double _rhof;
+	double _rhos;
+	double _cf;
+	double _cs;
+	double _epsilon;
+
+
 	//computing environment
 	//____________________
 	
@@ -54,6 +64,7 @@ struct SimEnv
 
 	//data environment
 	//____________________
+
 	std::string _outfolder;
 	int _runhash;
 

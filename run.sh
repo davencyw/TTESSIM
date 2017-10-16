@@ -6,13 +6,22 @@ OUTFOLDER="data/out/"
 NCELLS=256
 HEIGHT=33
 DIAMETER=6
-INITTEMP=294
 NUMCYCLES=100
 TSTEPSPERC=10
+
 TDS0=0.1
 TDS1=0.1
 TDS2=0.1
 TDS3=0.1
+
+INITTEMP=294
+KF=0.1
+KS=0.1
+RHOS=0.1
+RHOF=0.1
+CF=0.1
+CS=0.1
+EPS=0.1
 
 #___________________________
 
@@ -36,3 +45,10 @@ sh make.sh
 						--tds3 $TDS3	\
 						-c $NUMCYCLES 	\
 						-b $TSTEPSPERC	\
+						-kf $KF			\
+						-ks $KS			\
+						-rhof $RHOF		\
+						-rhos $RHOS		\
+						-cf $CF			\
+						-cs $CS			\
+						-epsilon $EPS	\
