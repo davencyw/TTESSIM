@@ -45,10 +45,10 @@ sh make.sh
 						--tds3 $TDS3	\
 						-c $NUMCYCLES 	\
 						-b $TSTEPSPERC	\
-						-kf $KF			\
-						-ks $KS			\
-						-rhof $RHOF		\
-						-rhos $RHOS		\
-						-cf $CF			\
-						-cs $CS			\
-						-epsilon $EPS	\
+						--kf $KF			\
+						--ks $KS			\
+						--rhof $RHOF		\
+						--rhos $RHOS		\
+						--cf $CF			\
+						--cs $CS			\
+						--epsilon $EPS	\

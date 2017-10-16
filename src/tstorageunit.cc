@@ -24,8 +24,8 @@ bool Tstorageunit::simsteps(const int steps, const int outputnstep){
 		opns = steps;
 
 	//avoid if with double loop
-	for(const int stepi(0); stepi < steps; stepi += opns){
-		for(const int stepj(0); stepj < opns; ++stepj){
+	for(int stepi(0); stepi < steps; stepi += opns){
+		for(int stepj(0); stepj < opns; ++stepj){
 		simstep();
 		}
 		//output every outputnstep steps

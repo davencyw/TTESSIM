@@ -47,7 +47,7 @@ void cmdpars(int argc, char const* argv[], SimEnv& simenv){
       ("tds2", po::value<double>(&(simenv._timedurstate2))->required(), "time duration for state 2")
       ("tds3", po::value<double>(&(simenv._timedurstate3))->required(), "time duration for state 3")
       ("kf", po::value<double>(&(simenv._kf))->required(), "kf")
-      ("ks", po::value<double>(&(simenv.ks))->required(), "ks")
+      ("ks", po::value<double>(&(simenv._ks))->required(), "ks")
       ("rhof", po::value<double>(&(simenv._rhof))->required(), "rhof")
       ("rhos", po::value<double>(&(simenv._rhos))->required(), "rhos")
       ("cf", po::value<double>(&(simenv._cf))->required(), "cf")
