@@ -10,6 +10,7 @@
 bool Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precision_t* __restrict__ fluid_temperature_o){
 	
 	//Loop over inner N-2 cells
+	#pragma GCC ivdep
 	for (int i = 1; i < _simenv->_numcells-1; ++i)
 	{		const precision_t tfi = fluid_temperature[i];
 			const precision_t tfim1 = fluid_temperature[i-1];
@@ -29,6 +30,7 @@ bool Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precisio
 bool Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precision_t* __restrict__ solid_temperature_o){
 
 	//Loop over inner N-2 cells
+	#pragma GCC ivdep
 	for (int i = 0; i < _simenv->_numcells-1; ++i)
 	{
 		const precision_t tsi = solid_temperature[i];

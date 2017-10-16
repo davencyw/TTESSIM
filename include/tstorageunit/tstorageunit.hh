@@ -62,10 +62,10 @@ private:
 
 	//physical properties of system
 	precision_t _total_time;
-	precision_t* _fluid_temperature __attribute__ ((aligned (32)));
-	precision_t* _solid_temperature __attribute__ ((aligned (32)));
-	precision_t* _fluid_temperature_o __attribute__ ((aligned (32)));
-	precision_t* _solid_temperature_o __attribute__ ((aligned (32)));
+	precision_t* _fluid_temperature;
+	precision_t* _solid_temperature;
+	precision_t* _fluid_temperature_o;
+	precision_t* _solid_temperature_o;
 	//state
 	//0 = charging (+)
 	//1 = discharging (-)
