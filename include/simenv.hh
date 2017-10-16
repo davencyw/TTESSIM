@@ -26,29 +26,29 @@ struct SimEnv
 	//number of cells
 	int _numcells;
 	// height of storage unit (cylindrical)
-	double _storage_height;
+	precision_t _storage_height;
 	//diameter of storage unit (cylindrical)
-	double _storage_diameter;
+	precision_t _storage_diameter;
 	//initial temperature of fluid
-	double _fluid_initemp;
+	precision_t _fluid_initemp;
 	//timestepsize
-	double _deltat;
+	precision_t _deltat;
 
 	//times for states
-	double _timedurstate0;
-	double _timedurstate1;
-	double _timedurstate2;
-	double _timedurstate3;
+	precision_t _timedurstate0;
+	precision_t _timedurstate1;
+	precision_t _timedurstate2;
+	precision_t _timedurstate3;
 
 	//fluid properties
-	double _kf;
-	double _ks;
-	double _rhof;
-	double _rhos;
-	double _cf;
-	double _cs;
-	double _epsilon;
-	double _uf;
+	precision_t _kf;
+	precision_t _ks;
+	precision_t _rhof;
+	precision_t _rhos;
+	precision_t _cf;
+	precision_t _cs;
+	precision_t _epsilon;
+	precision_t _uf;
 
 
 	//computing environment

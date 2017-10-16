@@ -67,7 +67,17 @@ void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precisio
 		const auto solution = [&k] (precision_t x) {return std::cos(k * x);};
 		const auto slack = [&k] (precision_t x, precision_t uf, precision_t alphaf) {return uf * std::sin(k*x) - alphaf * k * k * std::cos(k*x);};
 
+		//create data and solution
+		precision_t* fluid_temperature 		= (precision_t *) _mm_malloc(sizeof(precision_t)*_simenv->_numcells, 32);
+  		precision_t* fluid_temperature_o 	= (precision_t *) _mm_malloc(sizeof(precision_t)*_simenv->_numcells, 32);
+  		precision_t* solution_temperature	= (precision_t *) _mm_malloc(sizeof(precision_t)*_simenv->_numcells, 32);
 
+  		for (int i = 0; i < _simenv->_numcells; ++i)
+  		{
+  			solution_temperature[i] = solution(i * _dx);
+  			//initial condition
+  			fluid_temperature[i] = solution(i * _dx);
+  		}
 
 	};
 	bool Pdesolver::verfiysolid(){

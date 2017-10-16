@@ -24,7 +24,7 @@ public:
 	Pdesolver() = default;
 	Pdesolver(const SimEnv* simenv): _simenv(simenv){
 		_dt = _simenv->_deltat;
-		_dx = _simenv->_storage_height / _simenv->_numcells;
+		_dx = _simenv->_storage_height / static_cast<precision_t>(_simenv->_numcells);
 		_dx2 = _dx*_dx;
 		_idx = 1.0/_dx;
 		_idx2 = 1.0/_dx2;
