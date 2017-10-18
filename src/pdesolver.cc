@@ -26,7 +26,7 @@ void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precisio
 
 			//TODO(dave): Convert multiplication to addition!
 			fluid_temperature_o[i] = tfi - _dt * (_uf*_idx * (tfi - tfim1)) + _alphafidx2dt * (tfim1 - 2 * tfi + tfip1);
-			#ifdef DEBUG
+			#ifdef TESTING
 				fluid_temperature_o[i] +=  _uf * std::sin(_k*i*_dx) - _alphaf * _k * _k * std::cos(_k*i*_dx);
 			#endif
 	}
@@ -66,7 +66,7 @@ void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precisio
 }
 
 	
-#ifdef DEBUG
+#ifdef TESTING
 bool Pdesolver::verifyfluid(const int n){
 
 		_k = 2 * __SC_PI * n * _simenv->_storage_height;

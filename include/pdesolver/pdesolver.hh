@@ -44,7 +44,7 @@ public:
 	void solvesolid(precision_t* solid_temperature, precision_t* solid_temperature_o);
 
 
-	#ifdef DEBUG
+	#ifdef TESTING
 	//These functions solve the governing fluid and
 	//solid equations for a MMS given the slack term as
 	//default or passed lambda expression.
@@ -72,7 +72,7 @@ private:
 	int 		_numcells;
 
 	//DEBUG
-	#ifdef DEBUG
+	#ifdef TESTING
 	int _n;
 	int _k;
 	static constexpr precision_t _tol = 10e-8;
