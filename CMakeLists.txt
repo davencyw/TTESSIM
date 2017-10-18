@@ -14,7 +14,8 @@ if (NOT CMAKE_BUILD_TYPE)
       "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif ()
 
-SET (RELEASE_FLAGS " -std=c++11 -O3 -march=native -ftree-vectorize -fopenmp -lboost_program_options -lboost_filesystem -lboost_system -mtune=native -fopt-info-vec-optimized -fstrict-aliasing")
+SET (RELEASE_FLAGS " -std=c++11 -O3 -march=native -ftree-vectorize -fopenmp -lboost_program_options -lboost_filesystem -lboost_system -mtune=native -fopt-info-vec-optimized -fstrict-aliasing -DDEBUG")
+
 # SET (DEBG_CMAKE_CXX_FLAGS "-Werror -Wall -g")
 
 if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")

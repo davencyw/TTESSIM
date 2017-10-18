@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cmath>
 
+
 void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precision_t* __restrict__ fluid_temperature_o){
 	
 	//Loop over inner N-2 cells
@@ -23,7 +24,11 @@ void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precisio
 			const precision_t tfim1 = fluid_temperature[i-1];
 			const precision_t tfip1 = fluid_temperature[i+1];
 
+			//TODO(dave): Convert multiplication to addition!
 			fluid_temperature_o[i] = tfi - _dt * (_uf*_idx * (tfi - tfim1)) + _alphafidx2dt * (tfim1 - 2 * tfi + tfip1);
+			#ifdef DEBUG
+				fluid_temperature_o[i] +=  _uf * std::sin(_k*i*_dx) - _alphaf * _k * _k * std::cos(_k*i*_dx);
+			#endif
 	}
 
 	//TODO(dave):
@@ -60,16 +65,32 @@ void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precisio
 	std::swap(solid_temperature, solid_temperature_o);
 }
 
+	
+#ifdef DEBUG
+bool Pdesolver::verifyfluid(const int n){
 
-	bool Pdesolver::verifyfluid(const int n){
+		_k = 2 * __SC_PI * n * _simenv->_storage_height;
+		_n = n;
+		const auto solution = [this] (precision_t x) {return std::cos(_k * x);};
+		const auto slack = [this] (precision_t x, precision_t uf, precision_t alphaf) {return uf * std::sin(_k*x) - alphaf * _k * _k * std::cos(_k*x);};
 
-		const int k(2 * __SC_PI * n * _simenv->_storage_height);		
-		const auto solution = [&k] (precision_t x) {return std::cos(k * x);};
-		const auto slack = [&k] (precision_t x, precision_t uf, precision_t alphaf) {return uf * std::sin(k*x) - alphaf * k * k * std::cos(k*x);};
+  		precision_t* fluid_temperature 	= (precision_t *) _mm_malloc(sizeof(precision_t)*_numcells, 32);
+  		precision_t* fluid_temperature_o 	= (precision_t *) _mm_malloc(sizeof(precision_t)*_numcells, 32);
+  		precision_t* fluid_solution 	= (precision_t *) _mm_malloc(sizeof(precision_t)*_numcells, 32);
 
+  		//Fill solution and initial values to arrays
+  		precision_t x(0.0);
+  		for (int i = 0; i < _numcells; ++i)
+  		{	
+  			fluid_temperature[i] = solution(x);
+  			fluid_solution[i] = solution(x);
+  			x += _dx;
+  		}
 
 
 	};
+
 	bool Pdesolver::verfiysolid(){
 		//TODO(dave): implement
 	};
+#endif
