@@ -37,18 +37,19 @@ public:
 
   	 _pdesolver = Pdesolver(&simenv);
   	 precision_t inittemp(_simenv._fluid_initemp);
-  	 std::cout << inittemp << " : TEMP"<<std::endl;
+  	 //std::cout << inittemp << " : TEMP"<<std::endl;
   	 //WHATAFUUUCK?????
 
   	  for (int i = 0; i < _simenv._numcells; ++i)
   	  {
-  	  		_fluid_temperature[i] = inittemp;
-  	  		_solid_temperature[i] = inittemp;
-  	  		_fluid_temperature_o[i] = inittemp;
-  	 	 	_solid_temperature_o[i] = inittemp;
-  	  		_solid_temperature[i] = inittemp;
+  	  		_fluid_temperature[i] = _simenv._fluid_initemp;
+  	  		_solid_temperature[i] = _simenv._fluid_initemp;
+  	  		_fluid_temperature_o[i] = _simenv._fluid_initemp;
+  	 	 	_solid_temperature_o[i] = _simenv._fluid_initemp;
+  	  		_solid_temperature[i] = _simenv._fluid_initemp;
   	  }
 
+  	  //TODO(dave): add outputstep such that physical timesteps are known
   	  //initialize files with metadata
   	  std::string filename("r_"+ std::to_string(_simenv._runhash) + "_f" + ".csv");
 	  std::string fullpath(_simenv._outfolder + filename);

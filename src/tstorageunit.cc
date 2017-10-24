@@ -55,7 +55,6 @@ const bool Tstorageunit::writetocsv(precision_t* data, int size, bool fluid){
 
 	std::string filename("r_"+ std::to_string(_simenv._runhash) + "_" + type + ".csv");
 	std::string fullpath(_simenv._outfolder + filename);
-
 	std::ofstream fs(fullpath, std::ofstream::out | std::ofstream::app);
 
 	for (int i = 0; i < size-1; ++i)

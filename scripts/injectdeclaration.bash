@@ -1,12 +1,13 @@
 #!/bin/bash
-file=./declaration.txt
-injectfolder=./include/*
+injectfolder=../include/*
 
 #get declaration and  vars
 startsym="/*__DECLARATION__"
 endsym=" */"
-declarationtext=$(awk '{printf "%s\\n", $0}' declaration.txt)
+declarationtext=$(awk '{printf "%s\\n", $0}' ../declaration.txt)
 maxlines=95
+
+editedfiles=0
 
 #loop through all files
 for file in $(find $injectfolder -name '*.hh'); do
@@ -40,5 +41,8 @@ for file in $(find $injectfolder -name '*.hh'); do
 
 	#inject new declaration
 	sed -i "1s/^/$declarationtext/" $file	
+	editedfiles=$((editedfiles + 1))
 
 done
+
+echo "edited $editedfiles files" 

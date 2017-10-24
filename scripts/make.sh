@@ -8,6 +8,6 @@ echo "make.sh"
 echo "______\n"
 
 #make
-cd build
+cd ../build
 make
-cd ..
+cd ../scripts
