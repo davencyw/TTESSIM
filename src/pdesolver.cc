@@ -12,7 +12,7 @@
 void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precision_t* __restrict__ fluid_temperature_o){
 	
 	//Loop over inner N-2 cells
-	
+
 	#ifdef __INTEL_COMPILER
 	#pragma ivdep
 	#elif __GNUC__
@@ -24,7 +24,7 @@ void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precisio
 			const precision_t tfim1 = fluid_temperature[i-1];
 			const precision_t tfip1 = fluid_temperature[i+1];
 
-			//TODO(dave): Convert multiplication to addition!
+			//TODO(dave): Optimize, verify
 			fluid_temperature_o[i] = tfi - _dt * (_uf*_idx * (tfi - tfim1)) + _alphafidx2dt * (tfim1 - 2 * tfi + tfip1);
 			#ifdef TESTING
 				fluid_temperature_o[i] +=  _uf * std::sin(_k*i*_dx) - _alphaf * _k * _k * std::cos(_k*i*_dx);
@@ -54,7 +54,7 @@ void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precisio
 		const precision_t tsi = solid_temperature[i];
 		const precision_t tsim1 = solid_temperature[i-1];
 		const precision_t tsip1 = solid_temperature[i+1];
-
+		//TODO(dave): Optimize, verify
 		solid_temperature_o[i] = tsi + _alphafidx2dt * (tsip1 - 2 * tsi + tsim1);
 	}
 
