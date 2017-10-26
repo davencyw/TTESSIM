@@ -67,7 +67,10 @@ void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precisio
 
 	
 #ifdef TESTING
-bool Pdesolver::verifyfluid(const int n){
+
+void Pdesolver::testing(){}
+
+bool Pdesolver::verifyfluid(const int n, precision_t* error){
 
 		_k = 2 * __SC_PI * n * _simenv->_storage_height;
 		_n = n;
@@ -87,10 +90,36 @@ bool Pdesolver::verifyfluid(const int n){
   			x += _dx;
   		}
 
+  		precision_t diff(1.0);
+
+  		//Loop while solution not stable
+  		for (int i = 0; i < _maxiterations && diff > _tol; ++i)
+  		{
+  			solvefluid(fluid_temperature,fluid_temperature_o);
+  			diff = 0.0;
+  			for (int j = 0; j < _numcells; ++j)
+  			{
+  				diff += std::abs(fluid_temperature[j] - fluid_temperature_o[j]);
+  			}
+  			std::swap(fluid_temperature,fluid_temperature_o);
+  		}
+
+  		//compute difference to solution
+  		precision_t diff_solution(0.0);
+  		for (int i = 0; i < _numcells; ++i)
+  		{
+  			diff_solution += std::pow(fluid_temperature_o[i] - fluid_solution[i],2);
+  		}
+
+  		*error = diff_solution;
+  		
+  		_mm_free(fluid_temperature);
+  		_mm_free(fluid_temperature_o);
+  		_mm_free(fluid_solution);
 
 	};
 
-	bool Pdesolver::verfiysolid(){
+	bool Pdesolver::verfiysolid(const int n, precision_t* error){
 		//TODO(dave): implement
 	};
 #endif

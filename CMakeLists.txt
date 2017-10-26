@@ -14,7 +14,7 @@ if (NOT CMAKE_BUILD_TYPE)
       "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif ()
 
-SET (RELEASE_FLAGS " -std=c++11 -O3 -march=native -ftree-vectorize -fopenmp -lboost_program_options -lboost_filesystem -lboost_system -mtune=native -fopt-info-vec-optimized -fstrict-aliasing -DTESTING")
+SET (RELEASE_FLAGS " -std=c++11 -O3 -march=native -ftree-vectorize -fopenmp -lboost_program_options -lboost_filesystem -lboost_system -mtune=native -fopt-info-vec-optimized -fstrict-aliasing")
 
 # SET (DEBG_CMAKE_CXX_FLAGS "-Werror -Wall -g")
 
@@ -45,7 +45,6 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 
 file (GLOB SOURCES
-		src/main.cc
 		src/tstorageunit.cc
 		src/pdesolver.cc
 )
@@ -57,4 +56,7 @@ file (GLOB SOURCES
 ##
 #
 
-add_executable (ttessim ${SOURCES})
+add_executable (ttessim ${SOURCES} src/main.cc)
+
+add_executable (ttessim_testing ${SOURCES} src/main_testing.cc)
+target_compile_definitions(ttessim_testing PRIVATE TESTING)
