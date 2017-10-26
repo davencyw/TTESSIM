@@ -55,12 +55,12 @@ public:
 	  std::string fullpath(_simenv._outfolder + filename);
 	  std::ofstream fs;
 	  fs.open(fullpath, std::ofstream::out | std::ofstream::app);
-	  fs << _simenv._numcells<<";"<<_simenv._deltat<<";"<<"OUTPUTSTEP MISSING\n";
+	  fs << _simenv._numcells<<";"<<_simenv._deltat<<";"<<"OUTPUTSTEP MISSING;"<<_simenv._storage_height<<"\n";
 	  fs.close();
 	  filename = "r_"+ std::to_string(_simenv._runhash) + "_s" + ".csv";
 	  fullpath = _simenv._outfolder + filename;
 	  fs.open(fullpath, std::ofstream::out | std::ofstream::trunc);
-	  fs << _simenv._numcells<<";"<<_simenv._deltat<<";"<<"OUTPUTSTEP MISSING\n";
+	  fs << _simenv._numcells<<";"<<_simenv._deltat<<";"<<"OUTPUTSTEP MISSING;"<<_simenv._storage_height<<"\n";
 	  fs.close();
 	};
 

@@ -18,14 +18,18 @@ for f in files :
 	    data = list(csvreader)
 
 	    steps = int(len(data) - 1)
-	    npdata = np.array(data[1:steps+1],dtype=np.float32)
+	    npdata = np.transpose(np.array(data[1:steps+1],dtype=np.float32))
 
 	    numcells = float(data[0][0])
 	    dt = float(data[0][1])
-	    endrange = dt*steps
-	    endrange = dt*steps
-	    x = np.arange(0.0,endrange,dt)
-	    
-	    plt.plot(x,npdata)
+	    height = float(data[0][3])
+	    dx = height / float(numcells)
+	    endrange = dx * float(numcells) + (0.5 * dx)
+	    x = np.arange(0.5*dx,endrange,dx)
+
+
+
+	    plt.plot(x,npdata[:,9])
 	    plt.show()
+	    #TODO(dave): save that shit into a gif!
 
