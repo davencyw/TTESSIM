@@ -21,6 +21,8 @@
 #include <string>
 #include <functional>
 #include <immintrin.h>
+#include <iostream>
+#include <fstream>
 
 class Tstorageunit
 {
@@ -34,7 +36,32 @@ public:
   	_solid_temperature_o 	= (precision_t *) _mm_malloc(sizeof(precision_t)*_simenv._numcells, 32);
 
   	 _pdesolver = Pdesolver(&simenv);
+  	 precision_t inittemp(_simenv._fluid_initemp);
+  	 //std::cout << inittemp << " : TEMP"<<std::endl;
+  	 //WHATAFUUUCK?????
 
+  	  for (int i = 0; i < _simenv._numcells; ++i)
+  	  {
+  	  		_fluid_temperature[i] = _simenv._fluid_initemp;
+  	  		_solid_temperature[i] = _simenv._fluid_initemp;
+  	  		_fluid_temperature_o[i] = _simenv._fluid_initemp;
+  	 	 	_solid_temperature_o[i] = _simenv._fluid_initemp;
+  	  		_solid_temperature[i] = _simenv._fluid_initemp;
+  	  }
+
+  	  //TODO(dave): add outputstep such that physical timesteps are known
+  	  //initialize files with metadata
+  	  std::string filename("r_"+ std::to_string(_simenv._runhash) + "_f" + ".csv");
+	  std::string fullpath(_simenv._outfolder + filename);
+	  std::ofstream fs;
+	  fs.open(fullpath, std::ofstream::out | std::ofstream::app);
+	  fs << _simenv._numcells<<";"<<_simenv._deltat<<";"<<"OUTPUTSTEP MISSING;"<<_simenv._storage_height<<"\n";
+	  fs.close();
+	  filename = "r_"+ std::to_string(_simenv._runhash) + "_s" + ".csv";
+	  fullpath = _simenv._outfolder + filename;
+	  fs.open(fullpath, std::ofstream::out | std::ofstream::trunc);
+	  fs << _simenv._numcells<<";"<<_simenv._deltat<<";"<<"OUTPUTSTEP MISSING;"<<_simenv._storage_height<<"\n";
+	  fs.close();
 	};
 
 	~Tstorageunit(){
@@ -50,13 +77,13 @@ public:
 	bool simsteps(const int);
 	bool simsteps(const int, const int);
 
+private:
 	const int getstate();
 	const bool isidle();
 
 	//output functions
-	const bool writetocsv();
+	const bool writetocsv(precision_t*, int, bool);
 
-private:
 	//simulation environment
 	const SimEnv _simenv;
 

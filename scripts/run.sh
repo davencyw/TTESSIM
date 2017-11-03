@@ -1,9 +1,10 @@
 #!/bin/bash
 
 #variables and parameters
-OUTFOLDER="data/out/"
+OUTFOLDER="../data/out/"
 
-NCELLS=256
+#NCELLS=256
+NCELLS=5
 HEIGHT=33
 DIAMETER=6
 NUMCYCLES=100
@@ -36,7 +37,7 @@ UF=10
 # echo "______\n\n"
 
 #run
-./build/bin/ttessim						\
+../build/bin/ttessim						\
 						-N $NCELLS		\
 						-h $HEIGHT		\
 						-d $DIAMETER	\

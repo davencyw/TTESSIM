@@ -43,11 +43,14 @@ public:
 	void solvefluid(precision_t* fluid_temperature, precision_t* fluid_temperature_o);
 	void solvesolid(precision_t* solid_temperature, precision_t* solid_temperature_o);
 
+
+	#ifdef TESTING
 	//These functions solve the governing fluid and
 	//solid equations for a MMS given the slack term as
 	//default or passed lambda expression.
 	bool verifyfluid(const int n);
 	bool verfiysolid();
+	#endif
 
 
 private:
@@ -67,6 +70,13 @@ private:
 	precision_t _alphafidx2dt;
 	precision_t _uf;
 	int 		_numcells;
+
+	//DEBUG
+	#ifdef TESTING
+	int _n;
+	int _k;
+	static constexpr precision_t _tol = 10e-8;
+	#endif
 };
 
 

@@ -4,7 +4,10 @@
 
 #terminal notification
 echo "______\n"
-echo "cleardata.sh"
+echo "make.sh"
 echo "______\n"
 
-rm data/out/*
+#make
+cd ../build
+make
+cd ../scripts

@@ -16,6 +16,7 @@ bool Tstorageunit::simsteps(const int steps){
 	return simsteps(steps,0);
 }
 
+//writes output every outputnstep-step. If outputnstep is 0, nothing will be written
 bool Tstorageunit::simsteps(const int steps, const int outputnstep){
 	//TODO(dave): output(writetocsv)
 	int opns(outputnstep);
@@ -29,7 +30,8 @@ bool Tstorageunit::simsteps(const int steps, const int outputnstep){
 		simstep();
 		}
 		//output every outputnstep steps
-		writetocsv();
+		writetocsv(_fluid_temperature, _simenv._numcells, true);
+		writetocsv(_solid_temperature, _simenv._numcells, false);
 	}
 }
 
@@ -41,16 +43,25 @@ const bool Tstorageunit::isidle(){
 	return _state > 1;
 }
 
-const bool Tstorageunit::writetocsv(){
-	std::string filename("r_"+ std::to_string(_simenv._runhash) + "_" + std::to_string(_total_time) + ".csv");
+const bool Tstorageunit::writetocsv(precision_t* data, int size, bool fluid){
+	
+	//TODO(dave): Optimize
+
+	std::string type("s");
+
+	if(fluid){
+		type = "f";
+	}
+
+	std::string filename("r_"+ std::to_string(_simenv._runhash) + "_" + type + ".csv");
 	std::string fullpath(_simenv._outfolder + filename);
+	std::ofstream fs(fullpath, std::ofstream::out | std::ofstream::app);
 
-	std::cout<<fullpath<<std::endl;
+	for (int i = 0; i < size-1; ++i)
+	{
+		fs << data[i] << ";";
+	}
+	fs << data[size-1] << "\n";
 
-	std::ofstream filestream(fullpath, std::ofstream::out);
-
-	//TODO(dave): write data (!!! don't use std::endl, use "\n")
-	filestream << "test00,test01;test10,test11;";
-
-	filestream.close();
+	fs.close();
 };
