@@ -99,6 +99,7 @@ bool Pdesolver::verifyfluid(const int n, precision_t* error){
   		precision_t* fluid_temperature_o 	= (precision_t *) _mm_malloc(sizeof(precision_t)*_numcells, 32);
   		precision_t* fluid_solution 	= (precision_t *) _mm_malloc(sizeof(precision_t)*_numcells, 32);
 
+
   		//Fill solution and initial values to arrays
   		precision_t x(0.0);
   		for (int i = 0; i < _numcells; ++i)
