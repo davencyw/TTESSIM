@@ -30,8 +30,7 @@ void cmdpars(int argc, char const* argv[], SimEnv& simenv){
 	simenv._cuda = __P_DEF_CUDA;
   simenv._outfolder = __P_DEF_OUTFOLDER;
 
-  //runhash
-  simenv._runhash = std::time(0);
+  
 
 	//BOOST PRORGAM OPTIONS
 	namespace po = boost::program_options;
@@ -57,10 +56,11 @@ void cmdpars(int argc, char const* argv[], SimEnv& simenv){
       ("dt", po::value<precision_t>(&(simenv._deltat))->required(), "timestepsize")
       ("numcycles,c", po::value<int>(&(simenv._numcycles))->required(), "number of cycles")
       ("tstbc,b", po::value<int>(&(simenv._tsteppercycle))->required(), "timesteps between cycless")
-      (",o", po::value<std::string>(&(simenv._outfolder)), "output folder [optional]")
-      ("nthreads,n", po::value<int>(&(simenv._nThreads)) ,"number of threads [optional]")
+      ("folder", po::value<std::string>(&(simenv._outfolder)), "output folder [optional]")
+      ("nthreads,n", po::value<int>(&(simenv._nThreads)),"number of threads [optional]")
       ("schedule,s", po::value<int>(&(simenv._scheduling)) ,"omp scheduling [optional]")
       ("cuda", "enable cuda support [optional]");
+
 
 
     po::variables_map vm; 
@@ -100,7 +100,12 @@ void cmdpars(int argc, char const* argv[], SimEnv& simenv){
       std::cerr << "MISCONFIG: numcells = "<<simenv._numcells<<std::endl;
       exit(1);
     }
-    //TODO(dave): sanitize folder input with trailing slash
+
+  //TODO(dave): sanitize (folder) input
+  //runhash
+  simenv._runhash = std::time(0);
+  simenv._fullpath_fluid = simenv._outfolder + "r_"+ std::to_string(simenv._runhash) + "_f.csv";
+  simenv._fullpath_solid = simenv._outfolder + "r_"+ std::to_string(simenv._runhash) + "_s.csv";
 
 
 

@@ -25,9 +25,9 @@ void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precisio
 			const precision_t tfim1 = fluid_temperature[i-1];
 			const precision_t tfip1 = fluid_temperature[i+1];
 
-			//TODO(dave): Optimize, verify
 			fluid_temperature_o[i] = tfi - _dt * (_uf*_idx * (tfi - tfim1)) + _alphafidx2dt * (tfim1 - 2 * tfi + tfip1);
 			#ifdef TESTING
+				//TODO(dave): Optimize, verify
 				fluid_temperature_o[i] +=  _uf * std::sin(_k*i*_dx) - _alphaf * _k * _k * std::cos(_k*i*_dx);
 			#endif
 	}
@@ -80,11 +80,15 @@ void Pdesolver::testing(){
 	std::ofstream fs;
 	fs.open(fullpath, std::ofstream::out | std::ofstream::app);
 
+	fs.close();
+
 
 	//write solid
 	filename = "testing_OVS_r_" + std::to_string(_simenv->_runhash) + "_s.csv";
 	fullpath = _simenv->_outfolder + filename;
 	fs.open(fullpath, std::ofstream::out | std::ofstream::app);
+
+	fs.close();
 
 }	
 
@@ -111,7 +115,7 @@ bool Pdesolver::verifyfluid(const int n, precision_t* error){
 
   		precision_t diff(1.0);
 
-  		//Loop while solution not stable
+  		//Loop while solution not converged
   		for (int i = 0; i < _maxiterations && diff > _tol; ++i)
   		{
   			solvefluid(fluid_temperature,fluid_temperature_o);

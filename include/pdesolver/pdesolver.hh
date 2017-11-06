@@ -37,7 +37,6 @@ public:
 		_alphafidx2dt = _alphafidx2 * _dt;
 		_uf = _simenv->_uf;
 		_numcells = _simenv->_numcells;
-
 	};
 
 	void solvefluid(precision_t* fluid_temperature, precision_t* fluid_temperature_o);

@@ -47,21 +47,15 @@ const bool Tstorageunit::writetocsv(precision_t* data, int size, bool fluid){
 	
 	//TODO(dave): Optimize
 
-	std::string type("s");
-
+	std::ofstream* fsp = _simenv._fs_solid;
 	if(fluid){
-		type = "f";
+		fsp = _simenv._fs_fluid;
 	}
-
-	std::string filename("r_"+ std::to_string(_simenv._runhash) + "_" + type + ".csv");
-	std::string fullpath(_simenv._outfolder + filename);
-	std::ofstream fs(fullpath, std::ofstream::out | std::ofstream::app);
 
 	for (int i = 0; i < size-1; ++i)
 	{
-		fs << data[i] << ";";
+		*fsp << data[i] << ";";
 	}
-	fs << data[size-1] << "\n";
+	*fsp << data[size-1] << "\n";
 
-	fs.close();
 };

@@ -29,6 +29,7 @@ int main(int argc, char const *argv[]) {
 
   // start testing
   Pdesolver pdesolver(&simenv);
+  pdesolver.testing();
 
   return 0;
 }

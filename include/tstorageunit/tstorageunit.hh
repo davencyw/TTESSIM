@@ -51,17 +51,12 @@ public:
 
   	  //TODO(dave): add outputstep such that physical timesteps are known
   	  //initialize files with metadata
-  	  std::string filename("r_"+ std::to_string(_simenv._runhash) + "_f.csv");
-	  std::string fullpath(_simenv._outfolder + filename);
-	  std::ofstream fs;
-	  fs.open(fullpath, std::ofstream::out | std::ofstream::app);
-	  fs << _simenv._numcells<<";"<<_simenv._deltat<<";"<<"OUTPUTSTEP MISSING;"<<_simenv._storage_height<<"\n";
-	  fs.close();
-	  filename = "r_"+ std::to_string(_simenv._runhash) + "_s.csv";
-	  fullpath = _simenv._outfolder + filename;
-	  fs.open(fullpath, std::ofstream::out | std::ofstream::trunc);
-	  fs << _simenv._numcells<<";"<<_simenv._deltat<<";"<<"OUTPUTSTEP MISSING;"<<_simenv._storage_height<<"\n";
-	  fs.close();
+	  
+	  _simenv._fs_fluid->open(_simenv._fullpath_fluid, std::ofstream::out | std::ofstream::app);
+	  *_simenv._fs_fluid << _simenv._numcells<<";"<<_simenv._deltat<<";"<<"OUTPUTSTEP MISSING;"<<_simenv._storage_height<<"\n";
+
+	  _simenv._fs_solid->open(_simenv._fullpath_solid, std::ofstream::out | std::ofstream::trunc);
+	  *_simenv._fs_solid << _simenv._numcells<<";"<<_simenv._deltat<<";"<<"OUTPUTSTEP MISSING;"<<_simenv._storage_height<<"\n";
 	};
 
 	~Tstorageunit(){
@@ -70,6 +65,11 @@ public:
 		_mm_free(_fluid_temperature_o);
 		_mm_free(_solid_temperature);
 		_mm_free(_solid_temperature_o);
+
+		//Close fs
+		_simenv._fs_fluid->close();
+		_simenv._fs_solid->close();
+
 	}
 
 	//step-by-step simulation

@@ -14,11 +14,18 @@
 #define __SIMENV_HH__
 
 #include <string>
+#include <fstream>
 
 #include "global.hh"
 
 struct SimEnv
 {
+
+	SimEnv(){
+
+		_fs_fluid = new std::ofstream;
+		_fs_solid = new std::ofstream;
+	}
 		
 	//physical environment
 	//____________________
@@ -70,6 +77,10 @@ struct SimEnv
 
 	std::string _outfolder;
 	int _runhash;
+	std::string _fullpath_solid;
+	std::string _fullpath_fluid;
+	std::ofstream* _fs_fluid;
+	std::ofstream* _fs_solid;
 
 };
 
