@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 
+#include <fstream>
 #include <algorithm>
 #include <cmath>
 
@@ -68,7 +69,24 @@ void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precisio
 	
 #ifdef TESTING
 
-void Pdesolver::testing(){}
+void Pdesolver::testing(){
+
+	//TODO(Dave): Order verification study fluid.
+	//TODO(Dave): Order verification study solid.
+
+	//write fluid
+	std::string filename("testing_OVS_r_"+ std::to_string(_simenv->_runhash) + "_f.csv");
+	std::string fullpath(_simenv->_outfolder + filename);
+	std::ofstream fs;
+	fs.open(fullpath, std::ofstream::out | std::ofstream::app);
+
+
+	//write solid
+	filename = "testing_OVS_r_" + std::to_string(_simenv->_runhash) + "_s.csv";
+	fullpath = _simenv->_outfolder + filename;
+	fs.open(fullpath, std::ofstream::out | std::ofstream::app);
+
+}	
 
 bool Pdesolver::verifyfluid(const int n, precision_t* error){
 
@@ -112,7 +130,7 @@ bool Pdesolver::verifyfluid(const int n, precision_t* error){
   		}
 
   		*error = diff_solution;
-  		
+
   		_mm_free(fluid_temperature);
   		_mm_free(fluid_temperature_o);
   		_mm_free(fluid_solution);
