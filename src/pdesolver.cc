@@ -10,9 +10,10 @@
 #include <cmath>
 
 
+//TODO(dave): Optimize arithmetic!! (reordering)
+
 void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precision_t* __restrict__ fluid_temperature_o){
 	
-	//Loop over inner N-2 cells
 
 	#ifdef __INTEL_COMPILER
 	#pragma ivdep
@@ -27,14 +28,22 @@ void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precisio
 
 			fluid_temperature_o[i] = tfi - _dt * (_uf*_idx * (tfi - tfim1)) + _alphafidx2dt * (tfim1 - 2 * tfi + tfip1);
 			#ifdef TESTING
-				//TODO(dave): Optimize, verify
 				fluid_temperature_o[i] +=  _uf * std::sin(_k*i*_dx) - _alphaf * _k * _k * std::cos(_k*i*_dx);
 			#endif
 	}
 
-	//TODO(dave):
 	//Boundary cells
-
+	fluid_temperature_o[0] = fluid_temperature[0] - _dt * (_uf*_idx*(fluid_temperature[0]-fluid_temperature[-1])) + _alphafidx2dt*(fluid_temperature[1]-fluid_temperature[0]);
+	#ifdef TESTING
+		fluid_temperature_o[0]+= _uf * std::sin(0) - _alphaf * _k * _k * std::cos(0);
+	#endif
+	const int N(_simenv->_numcells-1);
+	const int Nm1(_simenv->_numcells-2);
+	fluid_temperature_o[N] =  fluid_temperature[N] - _dt * (_uf*_idx*(fluid_temperature[N]-fluid_temperature[Nm1])) + _alphafidx2dt*(fluid_temperature[N]-fluid_temperature[N-1]);
+	#ifdef TESTING
+		fluid_temperature_o[N]+= _uf * std::sin(_k*N*_dx) - _alphaf * _k * _k * std::cos(_k*N*_dx);
+	#endif
+	
 	//swap pointers
 	std::swap(fluid_temperature,fluid_temperature_o);
 }
@@ -57,10 +66,16 @@ void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precisio
 		const precision_t tsip1 = solid_temperature[i+1];
 		//TODO(dave): Optimize, verify
 		solid_temperature_o[i] = tsi + _alphafidx2dt * (tsip1 - 2 * tsi + tsim1);
+		//TODO(dave): Testing
 	}
 
-	//TODO(dave):
 	//Boundary cells
+	solid_temperature_o[0] = solid_temperature[0] + _alphafidx2dt*(solid_temperature[1]-solid_temperature[0]);
+	//TODO(dave): Testing
+	const int N(_simenv->_numcells-1);
+	const int Nm1(_simenv->_numcells-2);
+	solid_temperature_o[N] = solid_temperature[N] + _alphafidx2dt*(solid_temperature[N]-solid_temperature[Nm1]);
+	//TODO(dave): Testing
 
 	//swap pointers
 	std::swap(solid_temperature, solid_temperature_o);
@@ -79,7 +94,7 @@ void Pdesolver::testing(){
 	std::string fullpath(_simenv->_outfolder + filename);
 	std::ofstream fs;
 	fs.open(fullpath, std::ofstream::out | std::ofstream::app);
-
+	//...
 	fs.close();
 
 
@@ -87,7 +102,7 @@ void Pdesolver::testing(){
 	filename = "testing_OVS_r_" + std::to_string(_simenv->_runhash) + "_s.csv";
 	fullpath = _simenv->_outfolder + filename;
 	fs.open(fullpath, std::ofstream::out | std::ofstream::app);
-
+	//...
 	fs.close();
 
 }	
