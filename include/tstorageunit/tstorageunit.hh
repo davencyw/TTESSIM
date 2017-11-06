@@ -37,8 +37,6 @@ public:
 
   	 _pdesolver = Pdesolver(&simenv);
   	 precision_t inittemp(_simenv._fluid_initemp);
-  	 //std::cout << inittemp << " : TEMP"<<std::endl;
-  	 //WHATAFUUUCK?????
 
   	  for (int i = 0; i < _simenv._numcells; ++i)
   	  {

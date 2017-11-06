@@ -43,7 +43,7 @@ UF=10
 						-h $HEIGHT		\
 						-d $DIAMETER	\
 						-t $INITTEMP	\
-						-o $OUTFOLDER	\
+						--folder $OUTFOLDER	\
 						--tds0 $TDS0	\
 						--tds1 $TDS1	\
 						--tds2 $TDS2	\
