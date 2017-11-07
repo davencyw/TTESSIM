@@ -1,52 +1,46 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(ttes)
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
+project(ttessim)
 
 ##___________________________
 ##
 ##FLAGS
 ##
+#
 
-# set default build type to release for single generators
-if (NOT CMAKE_BUILD_TYPE)
-	set(CMAKE_BUILD_TYPE "RELEASE" CACHE STRING
-      "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
-endif ()
-
-SET (RELEASE_FLAGS " -std=c++11 -O3 -march=native -ftree-vectorize -fopenmp -lboost_program_options -lboost_filesystem -lboost_system -mtune=native -fopt-info-vec-optimized -fstrict-aliasing")
-
-# SET (DEBG_CMAKE_CXX_FLAGS "-Werror -Wall -g")
-
-if(${CMAKE_CXX_COMPILER_ID} MATCHES "GNU")
-  SET (RELEASE_FLAGS "${RELEASE_FLAGS} ")
-endif()
-
-if(${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
-  SET (RELEASE_FLAGS "${RELEASE_FLAGS} -Rpass=loop-vectorize")
-endif()
+SET (RELEASE_FLAGS " -O3 -ftree-vectorize -fopenmp -lboost_program_options -lboost_filesystem -lboost_system -mtune=native -fopt-info-vec-optimized -fstrict-aliasing")
 
 SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -mavx2 -mavx -msse -march=native")
-
-set (CMAKE_CXX_FLAGS_RELEASE "${RELEASE_FLAGS}" CACHE STRING "C++ Release flags" FORCE)
-set (CMAKE_C_FLAGS_RELEASE "${RELEASE_FLAGS}" CACHE STRING "C Release flags" FORCE)
 
 ##___________________________
 ##
 ##FILES & FOLDERS
 ##
+#
 
 include_directories(include)
 #add_subdirectory(xxx)
 
 
 ##DIR
-set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/dll)
+set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 
 
-file (GLOB SOURCES
-		src/tstorageunit.cc
-		src/pdesolver.cc
+file (GLOB SIMSRC
+	src/main.cc
+)
+
+file (GLOB TESTINGSRC
+	src/main_testing.cc
+)
+
+file (GLOB PDESOLVERSRC
+	src/pdesolver.cc
+)
+
+file (GLOB TSTORAGEUNITSRC
+	src/tstorageunit.cc
 )
 
 
@@ -56,7 +50,14 @@ file (GLOB SOURCES
 ##
 #
 
-add_executable (ttessim ${SOURCES} src/main.cc)
+add_library(pdesolver ${PDESOLVERSRC})
+add_library(pdesolver_testing ${PDESOLVERSRC})
+target_compile_definitions(pdesolver_testing PRIVATE TESTING)
+add_library(tstorageunit ${TSTORAGEUNITSRC})
 
-add_executable (ttessim_testing ${SOURCES} src/main_testing.cc)
+add_executable (ttessim ${SIMSRC})
+target_link_libraries(ttessim pdesolver tstorageunit)
+
+add_executable (ttessim_testing  ${TESTINGSRC})
 target_compile_definitions(ttessim_testing PRIVATE TESTING)
+target_link_libraries(ttessim_testing pdesolver_testing tstorageunit)

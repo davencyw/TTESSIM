@@ -6,13 +6,14 @@
 #include <stdio.h>
 
 #include <fstream>
+#include <iostream>
 #include <algorithm>
 #include <cmath>
 
 
 //TODO(dave): Optimize arithmetic!! (reordering)
 
-void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precision_t* __restrict__ fluid_temperature_o){
+void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precision_t* __restrict__ fluid_temperature_o, precision_t boundary){
 	
 
 	#ifdef __INTEL_COMPILER
@@ -28,20 +29,21 @@ void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precisio
 
 			fluid_temperature_o[i] = tfi - _dt * (_uf*_idx * (tfi - tfim1)) + _alphafidx2dt * (tfim1 - 2 * tfi + tfip1);
 			#ifdef TESTING
-				fluid_temperature_o[i] +=  _uf * std::sin(_k*i*_dx) - _alphaf * _k * _k * std::cos(_k*i*_dx);
+				fluid_temperature_o[i] +=  _uf * std::cos(_k*i*_dx) + _alphaf  * _k * std::sin(_k*i*_dx);
 			#endif
 	}
 
 	//Boundary cells
-	fluid_temperature_o[0] = fluid_temperature[0] - _dt * (_uf*_idx*(fluid_temperature[0]-fluid_temperature[-1])) + _alphafidx2dt*(fluid_temperature[1]-fluid_temperature[0]);
+	fluid_temperature_o[0] = fluid_temperature[0] - _dt * (_uf*_idx*(fluid_temperature[0]-boundary)) + _alphafidx2dt*(fluid_temperature[1]-fluid_temperature[0]);
 	#ifdef TESTING
-		fluid_temperature_o[0]+= _uf * std::sin(0) - _alphaf * _k * _k * std::cos(0);
+		fluid_temperature_o[0]+= _uf * std::cos(0) + _alphaf *  _k * std::sin(0);
 	#endif
+
 	const int N(_simenv->_numcells-1);
 	const int Nm1(_simenv->_numcells-2);
 	fluid_temperature_o[N] =  fluid_temperature[N] - _dt * (_uf*_idx*(fluid_temperature[N]-fluid_temperature[Nm1])) + _alphafidx2dt*(fluid_temperature[N]-fluid_temperature[N-1]);
 	#ifdef TESTING
-		fluid_temperature_o[N]+= _uf * std::sin(_k*N*_dx) - _alphaf * _k * _k * std::cos(_k*N*_dx);
+		fluid_temperature_o[N]+= _uf * std::cos(_k*N*_dx) + _alphaf * _k * std::sin(_k*N*_dx);
 	#endif
 	
 	//swap pointers
@@ -49,7 +51,7 @@ void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precisio
 }
 
 
-void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precision_t* __restrict__ solid_temperature_o){
+void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precision_t* __restrict__ solid_temperature_o, precision_t boundary){
 
 	//Loop over inner N-2 cells
 	
@@ -94,7 +96,12 @@ void Pdesolver::testing(){
 	std::string fullpath(_simenv->_outfolder + filename);
 	std::ofstream fs;
 	fs.open(fullpath, std::ofstream::out | std::ofstream::app);
-	//...
+	
+
+	precision_t* error = new precision_t;
+	verifyfluid(_simenv->_numcells,error);
+	std::cout<<"ERR: "<<*error<<std::endl;
+
 	fs.close();
 
 
@@ -112,7 +119,6 @@ bool Pdesolver::verifyfluid(const int n, precision_t* error){
 		_k = 2 * __SC_PI * n * _simenv->_storage_height;
 		_n = n;
 		const auto solution = [this] (precision_t x) {return std::cos(_k * x);};
-		const auto slack = [this] (precision_t x, precision_t uf, precision_t alphaf) {return uf * std::sin(_k*x) - alphaf * _k * _k * std::cos(_k*x);};
 
   		precision_t* fluid_temperature 	= (precision_t *) _mm_malloc(sizeof(precision_t)*_numcells, 32);
   		precision_t* fluid_temperature_o 	= (precision_t *) _mm_malloc(sizeof(precision_t)*_numcells, 32);
@@ -120,6 +126,7 @@ bool Pdesolver::verifyfluid(const int n, precision_t* error){
 
 
   		//Fill solution and initial values to arrays
+  		precision_t leftboundary(solution(-_dx));
   		precision_t x(0.0);
   		for (int i = 0; i < _numcells; ++i)
   		{	
@@ -131,9 +138,10 @@ bool Pdesolver::verifyfluid(const int n, precision_t* error){
   		precision_t diff(1.0);
 
   		//Loop while solution not converged
-  		for (int i = 0; i < _maxiterations && diff > _tol; ++i)
+  		int i(0);
+  		for (; i < _maxiterations && diff > _tol; ++i)
   		{
-  			solvefluid(fluid_temperature,fluid_temperature_o);
+  			solvefluid(fluid_temperature,fluid_temperature_o,leftboundary);
   			diff = 0.0;
   			for (int j = 0; j < _numcells; ++j)
   			{
@@ -141,6 +149,8 @@ bool Pdesolver::verifyfluid(const int n, precision_t* error){
   			}
   			std::swap(fluid_temperature,fluid_temperature_o);
   		}
+
+  		std::cout<<"ITER: "<< i << std::endl;
 
   		//compute difference to solution
   		precision_t diff_solution(0.0);

@@ -39,8 +39,8 @@ public:
 		_numcells = _simenv->_numcells;
 	};
 
-	void solvefluid(precision_t* fluid_temperature, precision_t* fluid_temperature_o);
-	void solvesolid(precision_t* solid_temperature, precision_t* solid_temperature_o);
+	void solvefluid(precision_t* fluid_temperature, precision_t* fluid_temperature_o, precision_t boundary);
+	void solvesolid(precision_t* solid_temperature, precision_t* solid_temperature_o, precision_t boundary);
 
 	#ifdef TESTING
 	void testing();
@@ -78,8 +78,8 @@ private:
 	#ifdef TESTING
 	int _n;
 	int _k;
-	static constexpr precision_t _tol = 10e-8;
-	static constexpr int _maxiterations = 10e4;
+	static constexpr precision_t _tol = 10e-6;
+	static constexpr int _maxiterations = 5000;
 	#endif
 };
 

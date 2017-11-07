@@ -31,5 +31,4 @@ for f in files :
 
 	    plt.plot(x,npdata[:,9])
 	    plt.show()
-	    #TODO(dave): save that shit into a gif!
 

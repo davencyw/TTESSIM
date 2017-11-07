@@ -10,4 +10,4 @@ echo "______\n"
 #make
 cd ../build
 make
-cd ../scripts
+cd -
