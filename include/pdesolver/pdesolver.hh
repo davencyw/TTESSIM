@@ -79,7 +79,7 @@ private:
 	int _n;
 	int _k;
 	static constexpr precision_t _tol = 10e-6;
-	static constexpr int _maxiterations = 5000;
+	static constexpr int _maxiterations = 50000;
 	#endif
 };
 
