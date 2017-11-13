@@ -16,13 +16,17 @@
 
 void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precision_t* __restrict__ fluid_temperature_o, precision_t boundary){
 	
+	
+	//*DEBUG*/std::cout<<"FDDIFF: "<<fluid_temperature[3] - fluid_temperature[4]*2 + fluid_temperature[5] <<"\n";
+	//*DEBUG*/std::cout<<"FD03: "<<fluid_temperature[3] <<"\n";
+	//*DEBUG*/std::cout<<"FD04: "<<fluid_temperature[4] <<"\n";
+	//*DEBUG*/std::cout<<"FD05: "<<fluid_temperature[5] <<"\n\n";
 
 	#ifdef __INTEL_COMPILER
 	#pragma ivdep
 	#elif __GNUC__
 	#pragma GCC ivdep
 	#endif
-
 	for (int i = 1; i < _simenv->_numcells-1; ++i)
 	{		const precision_t tfi = fluid_temperature[i];
 			const precision_t tfim1 = fluid_temperature[i-1];
@@ -31,21 +35,28 @@ void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature, precisio
 			fluid_temperature_o[i] = tfi - _dt * _uf*_idx * (tfi - tfim1) + _alphafidx2dt * (tfim1 - 2 * tfi + tfip1);
 
 			#ifdef TESTING
-				fluid_temperature_o[i] +=  _uf * std::cos(_k*i*_dx) + _alphaf  * _k * std::sin(_k*i*_dx);
+				fluid_temperature_o[i] -=  _dt* (_uf * std::cos(_k*i*_dx) - _alphaf  * _k * std::sin(_k*i*_dx));
+				//fluid_temperature_o[i] -=  _dt* (_uf * _k * std::sin(_k*i*_dx) + _alphaf  * _k * _k * std::cos(_k*i*_dx));
 			#endif
 	}
 
 	//Boundary cells
 	fluid_temperature_o[0] = fluid_temperature[0] - _dt *_uf*_idx*(fluid_temperature[0]-boundary) + _alphafidx2dt*(fluid_temperature[1]-fluid_temperature[0]);
+	 
 	#ifdef TESTING
-		fluid_temperature_o[0]+= _uf * std::cos(0) + _alphaf *  _k * std::sin(0);
+		//TODO(dave): simplify sin/cos
+		fluid_temperature_o[0]-= _dt * (_uf * std::cos(0) - _alphaf *  _k * std::sin(0));
+		//fluid_temperature_o[0]-= _dt * (_k * _uf * std::sin(0) + _alphaf * _k *  _k * std::cos(0));
 	#endif
 
 	const int N(_simenv->_numcells-1);
 	const int Nm1(_simenv->_numcells-2);
 	fluid_temperature_o[N] =  fluid_temperature[N] - _dt*_uf*_idx*(fluid_temperature[N]-fluid_temperature[Nm1]) + _alphafidx2dt*(fluid_temperature[N]-fluid_temperature[N-1]);
+
 	#ifdef TESTING
-		fluid_temperature_o[N]+= _uf * std::cos(_k*N*_dx) + _alphaf * _k * std::sin(_k*N*_dx);
+		//TODO(dave): simplify sin/cos
+		fluid_temperature_o[N]-= _dt * (_uf * std::cos(_k*N*_dx) - _alphaf * _k * std::sin(_k*N*_dx));
+		//fluid_temperature_o[N]-= _dt * (_uf * _k * std::sin(_k*N*_dx) + _alphaf * _k * _k * std::cos(_k*N*_dx));
 	#endif
 	
 	//TODO(dave): swap pointers
@@ -68,6 +79,7 @@ void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precisio
 		const precision_t tsim1 = solid_temperature[i-1];
 		const precision_t tsip1 = solid_temperature[i+1];
 		//TODO(dave): Optimize, verify
+		//TODO(dave): alphas
 		solid_temperature_o[i] = tsi + _alphafidx2dt * (tsip1 - 2 * tsi + tsim1);
 		//TODO(dave): Testing
 	}
@@ -75,10 +87,12 @@ void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature, precisio
 	//Boundary cells
 	solid_temperature_o[0] = solid_temperature[0] + _alphafidx2dt*(solid_temperature[1]-solid_temperature[0]);
 	//TODO(dave): Testing
+	//TODO(dave): alphas
 	const int N(_simenv->_numcells-1);
 	const int Nm1(_simenv->_numcells-2);
 	solid_temperature_o[N] = solid_temperature[N] + _alphafidx2dt*(solid_temperature[N]-solid_temperature[Nm1]);
 	//TODO(dave): Testing
+	//TODO(dave): alphas
 
 	//swap pointers
 	std::swap(solid_temperature, solid_temperature_o);
@@ -99,7 +113,7 @@ void Pdesolver::testing(){
 	fs.open(fullpath, std::ofstream::out | std::ofstream::app);
 	precision_t* error = new precision_t;
 
-	verifyfluid(_numcells,error);
+	verifyfluid(1,error);
 	std::cout<<"ERR: "<<*error<<std::endl;
 	fs.close();
 
@@ -107,14 +121,14 @@ void Pdesolver::testing(){
 	filename = "testing_OVS_r_" + std::to_string(_simenv->_runhash) + "_s.csv";
 	fullpath = _simenv->_outfolder + filename;
 	fs.open(fullpath, std::ofstream::out | std::ofstream::app);
-	verfiysolid(_numcells,error);
+	verfiysolid(1,error);
 	fs.close();
 
 }	
 
 bool Pdesolver::verifyfluid(const int n, precision_t* error){
 
-		_k = 2 * __SC_PI * _simenv->_storage_height;
+		_k = 2 * __SC_PI * n / _simenv->_storage_height;
 		_n = n;
 		const auto solution = [this] (precision_t x) {return std::cos(_k * x);};
 
@@ -128,8 +142,7 @@ bool Pdesolver::verifyfluid(const int n, precision_t* error){
   		precision_t x(0.0);
   		for (int i = 0; i < _numcells; ++i)
   		{	
-  			fluid_temperature[i] = solution(x);
-  			fluid_solution[i] = solution(x);
+  			fluid_solution[i] = fluid_temperature[i] = solution(x);
   			x += _dx;
   		}
 
@@ -147,19 +160,21 @@ bool Pdesolver::verifyfluid(const int n, precision_t* error){
   			}
   			diff = diff/static_cast<precision_t>(_numcells);
 
+  			//TODO(dave): Check pointerswap with solvefluid
   			std::swap(fluid_temperature,fluid_temperature_o);
+  			/*DEBUG*/std::cout<<"DIFF: "<<diff<<"\n";
   		}
 
-  		std::cout<<"ITER: "<< i << std::endl;
+  		/*DEBUG*/std::cout<<"ITER: "<< i << std::endl;
 
   		//compute difference to solution
   		precision_t diff_solution(0.0);
   		for (int i = 0; i < _numcells; ++i)
   		{
-  			diff_solution += (fluid_temperature_o[i] - fluid_solution[i])/fluid_solution[i];
+  			diff_solution += std::abs((fluid_temperature_o[i] - fluid_solution[i])/fluid_solution[i]);
   		}
 
-  		*error = diff_solution;
+  		*error = diff_solution/static_cast<precision_t>(_numcells);
 
   		_mm_free(fluid_temperature);
   		_mm_free(fluid_temperature_o);

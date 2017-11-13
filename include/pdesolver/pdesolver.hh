@@ -32,7 +32,7 @@ public:
 		_epsilon = _simenv->_epsilon;
 		_rhof = _simenv->_rhof;
 		_cf = _simenv->_cf;
-		_alphaf = _kf / _epsilon * _rhof * _cf;
+		_alphaf = _kf / (_epsilon * _rhof * _cf);
 		_alphafidx2 = _alphaf * _idx2;
 		_alphafidx2dt = _alphafidx2 * _dt;
 		_uf = _simenv->_uf;
@@ -76,10 +76,10 @@ private:
 
 	//DEBUG
 	#ifdef TESTING
-	int _n;
-	int _k;
+	int _n; 
+	precision_t _k;
 	static constexpr precision_t _tol = 10e-6;
-	static constexpr int _maxiterations = 50000;
+	static constexpr int _maxiterations = 500;
 	#endif
 };
 
