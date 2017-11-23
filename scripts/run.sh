@@ -37,6 +37,7 @@ UF=10
 # echo "______\n\n"
 
 #run
+clear
 ../build/bin/ttessim					\
 						-N $NCELLS		\
 						-h $HEIGHT		\

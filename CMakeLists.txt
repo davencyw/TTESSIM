@@ -7,7 +7,7 @@ project(ttessim)
 ##
 #
 
-SET (RELEASE_FLAGS " -O3 -ftree-vectorize -fopenmp -lboost_program_options -lboost_filesystem -lboost_system -mtune=native -fopt-info-vec-optimized -fstrict-aliasing")
+SET (RELEASE_FLAGS " -O3 -ftree-vectorize -fopenmp -lboost_program_options -lboost_filesystem -lboost_system -mtune=native -fopt-info-vec-optimized -fstrict-aliasing -Wall")
 
 SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -mavx2 -mavx -msse -march=native")
 

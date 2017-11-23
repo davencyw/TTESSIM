@@ -5,7 +5,7 @@ OUTFOLDER="../data/testing/"
 
 #TODO(dave): SPECIFY TESTING PARAMETERS!!
 
-NCELLS=101
+NCELLS=100
 HEIGHT=33
 DIAMETER=6
 NUMCYCLES=100
@@ -16,17 +16,17 @@ TDS1=0.1
 TDS2=0.1
 TDS3=0.1
 
-DELTAT=0.00001
+DELTAT=1e-5
 
 INITTEMP=773
-KF=0.1
-KS=0.1
-RHOS=0.1
-RHOF=0.1
-CF=0.1
-CS=0.1
-EPS=0.1
-UF=0.1
+KF=1
+KS=1
+RHOS=1
+RHOF=1
+CF=1
+CS=1
+EPS=1
+UF=1
 
 #___________________________
 
@@ -38,6 +38,7 @@ UF=0.1
 # echo "______\n\n"
 
 #run
+clear
 ../build/bin/ttessim_testing			\
 						-N $NCELLS		\
 						-h $HEIGHT		\
