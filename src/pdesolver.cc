@@ -160,7 +160,7 @@ bool Pdesolver::verifyfluid(precision_t* error) {
   precision_t x(_dx * 0.5);
   for (int i = 0; i < _numcells; ++i) {
     fluid_solution[i] = solution(x);
-    fluid_temperature[i] = 100;  // solution(x);
+    fluid_temperature[i] = solution(x);
     x += _dx;
   }
 
