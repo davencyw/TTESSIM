@@ -24,15 +24,18 @@ int main(int argc, char const *argv[]) {
             << "        davencyw code  [davencyw.net]\n"
             << "        ETH Zurich\n\n"
             << "\033[1;31mT E S T I N G T E S T I N G T E S T I N T E S T I N "
-               "G\033[0m\n"
-            << "\033[1;31mT E S T I N G T E S T I N G T E S T I N T E S T I N "
-               "G\033[0m\n"
-            << "\033[1;31mT E S T I N G T E S T I N G T E S T I N T E S T I N "
+               "G\n"
+            << "T E S T I N G T E S T I N G T E S T I N T E S T I N "
+               "G\n"
+            << "T E S T I N G T E S T I N G T E S T I N T E S T I N "
                "G\033[0m\n\n\n";
 
   // start testing
   Pdesolver pdesolver(&simenv);
   pdesolver.testing();
+
+  // TODO(dave): OVS -> change simenv and start testing again, file descriptor
+  // is still the same
 
   return 0;
 }

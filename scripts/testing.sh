@@ -5,7 +5,7 @@ OUTFOLDER="../data/testing/"
 
 #TODO(dave): SPECIFY TESTING PARAMETERS!!
 
-NCELLS=200
+NCELLS=800
 HEIGHT=33
 DIAMETER=6
 NUMCYCLES=100
@@ -26,7 +26,7 @@ RHOF=1
 CF=1
 CS=1
 EPS=1
-UF=1
+UF=100
 
 #___________________________
 
