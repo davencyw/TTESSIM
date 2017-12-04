@@ -11,7 +11,6 @@
 #include <iostream>
 
 // TODO(dave): Optimize arithmetic!! (reordering)
-
 void Pdesolver::solvefluid(precision_t** ft,
                            precision_t** fto,
                            precision_t boundary, int state) {
