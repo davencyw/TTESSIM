@@ -14,7 +14,7 @@
 // TODO(dave): Optimize arithmetic!! (reordering)
 // TODO(dave): change switch to generic generator
 void Pdesolver::solvefluid(precision_t** ft, precision_t** fto,
-                           precision_t boundary, unsigned int state) {
+                           precision_t boundary, const unsigned int state) {
   precision_t* fluid_temperature = *ft;
   precision_t* fluid_temperature_o = *fto;
 
@@ -23,7 +23,7 @@ void Pdesolver::solvefluid(precision_t** ft, precision_t** fto,
   const int N(_simenv->_numcells - 1);
   const int Nm1(_simenv->_numcells - 2);
 
-  switch (state) {
+  switch (0) {
     case 0: {
 #ifdef __INTEL_COMPILER
 #pragma ivdep
@@ -48,8 +48,7 @@ void Pdesolver::solvefluid(precision_t** ft, precision_t** fto,
           fluid_temperature[N] -
           _dt * _uf * _idx * (fluid_temperature[N] - fluid_temperature[Nm1]) +
           _alphafidx2dt * (fluid_temperature[Nm1] - fluid_temperature[N]);
-    }
-
+    } break;
     case 1: {
 #ifdef __INTEL_COMPILER
 #pragma ivdep
@@ -71,7 +70,7 @@ void Pdesolver::solvefluid(precision_t** ft, precision_t** fto,
       fluid_temperature_o[N] =
           fluid_temperature[N] -
           +_alphafidx2dt * (fluid_temperature[Nm1] - fluid_temperature[N]);
-    }
+    } break;
     case 2: {
 #ifdef __INTEL_COMPILER
 #pragma ivdep
@@ -96,7 +95,7 @@ void Pdesolver::solvefluid(precision_t** ft, precision_t** fto,
           _dt * _uf * _idx * (boundary - fluid_temperature[N]) +
           _alphafidx2dt *
               (boundary - 2.0 * fluid_temperature[N] + fluid_temperature[Nm1]);
-    }
+    } break;
     case 3: {
 #ifdef __INTEL_COMPILER
 #pragma ivdep
@@ -118,7 +117,9 @@ void Pdesolver::solvefluid(precision_t** ft, precision_t** fto,
       fluid_temperature_o[N] =
           fluid_temperature[N] -
           +_alphafidx2dt * (fluid_temperature[Nm1] - fluid_temperature[N]);
-    }
+    } break;
+
+    default: { std::cout << "E R R O R INVALID STATE\n"; }
   }
 
 // mms
@@ -150,11 +151,10 @@ void Pdesolver::solvesolid(precision_t** st, precision_t** sto,
 #elif __GNUC__
 #pragma GCC ivdep
 #endif
-  for (int i = 0; i < _simenv->_numcells - 1; ++i) {
+  for (int i = 1; i < _simenv->_numcells - 1; ++i) {
     const precision_t tsi = solid_temperature[i];
     const precision_t tsim1 = solid_temperature[i - 1];
     const precision_t tsip1 = solid_temperature[i + 1];
-    // TODO(dave): Optimize, verify
     solid_temperature_o[i] = tsi + _alphasidx2dt * (tsip1 - 2 * tsi + tsim1);
   }
 

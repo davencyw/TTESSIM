@@ -49,7 +49,7 @@ class Pdesolver {
 
   void solvefluid(precision_t** fluid_temperature,
                   precision_t** fluid_temperature_o, precision_t boundary,
-                  unsigned int state);
+                  const unsigned int state);
   void solvesolid(precision_t** solid_temperature,
                   precision_t** solid_temperature_o, precision_t boundary);
   void solvecoupling(precision_t* tf, precision_t* ts);
