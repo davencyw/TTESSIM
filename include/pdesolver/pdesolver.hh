@@ -43,6 +43,8 @@ class Pdesolver {
     _alphasidx2dt = _alphasidx2 * _dt;
     _uf = _simenv->_uf;
     _numcells = _simenv->_numcells;
+    _hf = _simenv->_hf;
+    _hs = _simenv->_hs;
   };
 
   void solvefluid(precision_t** fluid_temperature,
@@ -85,6 +87,8 @@ class Pdesolver {
   precision_t _alphafidx2dt;
   precision_t _alphasidx2dt;
   precision_t _uf;
+  precision_t _hf;
+  precision_t _hs;
   int _numcells;
 
 // DEBUG
