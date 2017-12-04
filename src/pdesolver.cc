@@ -11,7 +11,6 @@
 #include <iostream>
 
 // TODO(dave): Optimize arithmetic!! (reordering)
-// TODO(dave): Solve swap problem in solvefluid/solid!!!
 
 void Pdesolver::solvefluid(precision_t** ft,
                            precision_t** fto,
