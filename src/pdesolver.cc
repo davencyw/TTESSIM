@@ -4,49 +4,126 @@
 #include "simenv.hh"
 
 #include <stdio.h>
+#include <cassert>
+#include <cmath>
 
 #include <algorithm>
-#include <cmath>
 #include <fstream>
 #include <iostream>
 
 // TODO(dave): Optimize arithmetic!! (reordering)
-// TODO(dave): Solve swap problem in solvefluid/solid!!!
-
+// TODO(dave): change switch to generic generator
 void Pdesolver::solvefluid(precision_t** ft, precision_t** fto,
-                           precision_t boundary, int state) {
+                           precision_t boundary, unsigned int state) {
   precision_t* fluid_temperature = *ft;
   precision_t* fluid_temperature_o = *fto;
 
+  assert(state < 4);
+
+  const int N(_simenv->_numcells - 1);
+  const int Nm1(_simenv->_numcells - 2);
+
+  switch (state) {
+    case 0: {
 #ifdef __INTEL_COMPILER
 #pragma ivdep
 #elif __GNUC__
 #pragma GCC ivdep
 #endif
-  for (int i = 1; i < _simenv->_numcells - 1; ++i) {
-    const precision_t tfi = fluid_temperature[i];
-    const precision_t tfim1 = fluid_temperature[i - 1];
-    const precision_t tfip1 = fluid_temperature[i + 1];
+      for (int i = 1; i < _simenv->_numcells - 1; ++i) {
+        const precision_t tfi = fluid_temperature[i];
+        const precision_t tfim1 = fluid_temperature[i - 1];
+        const precision_t tfip1 = fluid_temperature[i + 1];
 
-    fluid_temperature_o[i] = tfi - _dt * _uf * _idx * (tfi - tfim1) +
-                             _alphafidx2dt * (tfim1 - 2 * tfi + tfip1);
+        fluid_temperature_o[i] = tfi - _dt * _uf * _idx * (tfi - tfim1) +
+                                 _alphafidx2dt * (tfim1 - 2.0 * tfi + tfip1);
+      }
+      // boundary cells
+      fluid_temperature_o[0] =
+          fluid_temperature[0] -
+          _dt * _uf * _idx * (fluid_temperature[0] - boundary) +
+          _alphafidx2dt *
+              (fluid_temperature[1] - 2.0 * fluid_temperature[0] + boundary);
+      fluid_temperature_o[N] =
+          fluid_temperature[N] -
+          _dt * _uf * _idx * (fluid_temperature[N] - fluid_temperature[Nm1]) +
+          _alphafidx2dt * (fluid_temperature[Nm1] - fluid_temperature[N]);
+    }
+
+    case 1: {
+#ifdef __INTEL_COMPILER
+#pragma ivdep
+#elif __GNUC__
+#pragma GCC ivdep
+#endif
+      for (int i = 1; i < _simenv->_numcells - 1; ++i) {
+        const precision_t tfi = fluid_temperature[i];
+        const precision_t tfim1 = fluid_temperature[i - 1];
+        const precision_t tfip1 = fluid_temperature[i + 1];
+
+        fluid_temperature_o[i] =
+            tfi + _alphafidx2dt * (tfim1 - 2.0 * tfi + tfip1);
+      }
+      // boundary cells
+      fluid_temperature_o[0] =
+          fluid_temperature[0] +
+          _alphafidx2dt * (fluid_temperature[1] - fluid_temperature[0]);
+      fluid_temperature_o[N] =
+          fluid_temperature[N] -
+          +_alphafidx2dt * (fluid_temperature[Nm1] - fluid_temperature[N]);
+    }
+    case 2: {
+#ifdef __INTEL_COMPILER
+#pragma ivdep
+#elif __GNUC__
+#pragma GCC ivdep
+#endif
+      for (int i = 1; i < _simenv->_numcells - 1; ++i) {
+        const precision_t tfi = fluid_temperature[i];
+        const precision_t tfim1 = fluid_temperature[i - 1];
+        const precision_t tfip1 = fluid_temperature[i + 1];
+
+        fluid_temperature_o[i] = tfi - _dt * _uf * _idx * (tfip1 - tfi) +
+                                 _alphafidx2dt * (tfim1 - 2 * tfi + tfip1);
+      }
+      // boundary cells
+      fluid_temperature_o[0] =
+          fluid_temperature[0] -
+          _dt * _uf * _idx * (fluid_temperature[1] - fluid_temperature[0]) +
+          _alphafidx2dt * (fluid_temperature[1] - fluid_temperature[0]);
+      fluid_temperature_o[N] =
+          fluid_temperature[N] -
+          _dt * _uf * _idx * (boundary - fluid_temperature[N]) +
+          _alphafidx2dt *
+              (boundary - 2.0 * fluid_temperature[N] + fluid_temperature[Nm1]);
+    }
+    case 3: {
+#ifdef __INTEL_COMPILER
+#pragma ivdep
+#elif __GNUC__
+#pragma GCC ivdep
+#endif
+      for (int i = 1; i < _simenv->_numcells - 1; ++i) {
+        const precision_t tfi = fluid_temperature[i];
+        const precision_t tfim1 = fluid_temperature[i - 1];
+        const precision_t tfip1 = fluid_temperature[i + 1];
+
+        fluid_temperature_o[i] =
+            tfi + _alphafidx2dt * (tfim1 - 2 * tfi + tfip1);
+      }
+      // boundary cells
+      fluid_temperature_o[0] =
+          fluid_temperature[0] +
+          _alphafidx2dt * (fluid_temperature[1] - fluid_temperature[0]);
+      fluid_temperature_o[N] =
+          fluid_temperature[N] -
+          +_alphafidx2dt * (fluid_temperature[Nm1] - fluid_temperature[N]);
+    }
   }
-
-  const int N(_simenv->_numcells - 1);
-  const int Nm1(_simenv->_numcells - 2);
-  // boundary cells
-  fluid_temperature_o[0] =
-      fluid_temperature[0] -
-      _dt * _uf * _idx * (fluid_temperature[0] - boundary) +
-      _alphafidx2dt *
-          (fluid_temperature[1] - 2.0 * fluid_temperature[0] + boundary);
-  fluid_temperature_o[N] =
-      fluid_temperature[N] -
-      _dt * _uf * _idx * (fluid_temperature[N] - fluid_temperature[Nm1]) +
-      _alphafidx2dt * (fluid_temperature[Nm1] - fluid_temperature[N]);
 
 // mms
 #ifdef TESTING
+  assert(state == 0);
 #ifdef __INTEL_COMPILER
 #pragma ivdep
 #elif __GNUC__
@@ -231,6 +308,8 @@ bool Pdesolver::verify(precision_t* errorf, precision_t* errors) {
   _mm_free(fluid_temperature_o);
   _mm_free(solid_temperature_o);
   _mm_free(solution);
+  _mm_free(_source_fluid);
+  _mm_free(_source_solid);
 };
 
 #endif
