@@ -13,9 +13,11 @@
 // TODO(dave): Optimize arithmetic!! (reordering)
 // TODO(dave): Solve swap problem in solvefluid/solid!!!
 
-void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature,
-                           precision_t* __restrict__ fluid_temperature_o,
-                           precision_t boundary) {
+void Pdesolver::solvefluid(precision_t** ft, precision_t** fto,
+                           precision_t boundary, int state) {
+  precision_t* fluid_temperature = *ft;
+  precision_t* fluid_temperature_o = *fto;
+
 #ifdef __INTEL_COMPILER
 #pragma ivdep
 #elif __GNUC__
@@ -55,13 +57,15 @@ void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature,
   }
 #endif
 
-  // TODO(dave): swap pointers
+  std::swap(*ft, *fto);
 }
 
-void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature,
-                           precision_t* __restrict__ solid_temperature_o,
+void Pdesolver::solvesolid(precision_t** st, precision_t** sto,
                            precision_t boundary) {
-// Loop over inner N-2 cells
+  // Loop over inner N-2 cells
+
+  precision_t* solid_temperature = *st;
+  precision_t* solid_temperature_o = *sto;
 
 #ifdef __INTEL_COMPILER
 #pragma ivdep
@@ -99,7 +103,7 @@ void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature,
   }
 #endif
 
-  // TODO(dave): swap pointers
+  std::swap(*st, *sto);
 }
 
 #ifdef TESTING
@@ -113,7 +117,6 @@ void Pdesolver::testing() {
 
   _source_fluid = (precision_t*)_mm_malloc(sizeof(precision_t) * _numcells, 32);
   _source_solid = (precision_t*)_mm_malloc(sizeof(precision_t) * _numcells, 32);
-
   // compute source terms
   precision_t x(_dx * 0.5);
   for (int i = 0; i < _numcells; ++i) {
@@ -160,7 +163,7 @@ bool Pdesolver::verifyfluid(precision_t* error) {
   precision_t x(_dx * 0.5);
   for (int i = 0; i < _numcells; ++i) {
     fluid_solution[i] = solution(x);
-    fluid_temperature[i] = 100;  // solution(x);
+    fluid_temperature[i] = solution(x);
     x += _dx;
   }
 
