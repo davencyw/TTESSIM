@@ -1,11 +1,10 @@
 #!/bin/bash
 
 #variables and parameters
-OUTFOLDER="../data/testing/"
+OUTFOLDER="../data/out/"
 
-#TODO(dave): SPECIFY TESTING PARAMETERS!!
 
-NCELLS=100
+NCELLS=512
 HEIGHT=33
 DIAMETER=6
 NUMCYCLES=100
@@ -16,17 +15,17 @@ TDS1=0.1
 TDS2=0.1
 TDS3=0.1
 
-DELTAT=1e-5
+DELTAT=0.001
 
-INITTEMP=773
-KF=1
-KS=1
-RHOS=1
-RHOF=1
-CF=1
-CS=1
-EPS=1
-UF=1
+INITTEMP=294
+KF=0.1
+KS=0.1
+RHOS=0.1
+RHOF=0.1
+CF=0.1
+CS=0.1
+EPS=0.1
+UF=10
 
 #___________________________
 
@@ -39,7 +38,7 @@ UF=1
 
 #run
 clear
-../build/bin/ttessim_testing			\
+../build/bin/ttessim					\
 						-N $NCELLS		\
 						-h $HEIGHT		\
 						-d $DIAMETER	\
@@ -60,6 +59,3 @@ clear
 						--epsilon $EPS	\
 						--uf $UF		\
 						--dt $DELTAT 	\
-
-
-#TODO(Dave): WRITE PLOTTING SCRIPTS FOR ORDER VERIFICATION-STUDIES FOR FLUID AND SOLID

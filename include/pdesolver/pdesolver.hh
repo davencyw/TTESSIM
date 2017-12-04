@@ -45,11 +45,10 @@ class Pdesolver {
     _numcells = _simenv->_numcells;
   };
 
-  void solvefluid(precision_t** fluid_temperature,
-                  precision_t** fluid_temperature_o, precision_t boundary,
-                  int state);
-  void solvesolid(precision_t** solid_temperature,
-                  precision_t** solid_temperature_o, precision_t boundary);
+  void solvefluid(precision_t* fluid_temperature,
+                  precision_t* fluid_temperature_o, precision_t boundary);
+  void solvesolid(precision_t* solid_temperature,
+                  precision_t* solid_temperature_o, precision_t boundary);
 
 #ifdef TESTING
   void testing();
@@ -60,7 +59,8 @@ class Pdesolver {
   // These functions solve the governing fluid and
   // solid equations for a MMS given the slack term as
   // default or passed lambda expression.
-  bool verify(precision_t* errorf, precision_t* errors);
+  bool verifyfluid(precision_t* error);
+  bool verfiysolid(precision_t* error);
 #endif
 
   const SimEnv* _simenv;
@@ -91,7 +91,7 @@ class Pdesolver {
   int _n;
   precision_t _k;
   static constexpr precision_t _tol = 1e-8;
-  static constexpr int _maxiterations = 50000;
+  static constexpr int _maxiterations = 10000;
   precision_t* _source_fluid;
   precision_t* _source_solid;
 #endif
