@@ -50,6 +50,7 @@ class Pdesolver {
                   int state);
   void solvesolid(precision_t** solid_temperature,
                   precision_t** solid_temperature_o, precision_t boundary);
+  void solvecoupling(precision_t* tf, precision_t* ts);
 
 #ifdef TESTING
   void testing();

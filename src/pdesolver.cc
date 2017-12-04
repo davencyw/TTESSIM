@@ -13,12 +13,10 @@
 // TODO(dave): Optimize arithmetic!! (reordering)
 // TODO(dave): Solve swap problem in solvefluid/solid!!!
 
-void Pdesolver::solvefluid(precision_t** ft,
-                           precision_t** fto,
+void Pdesolver::solvefluid(precision_t** ft, precision_t** fto,
                            precision_t boundary, int state) {
-
-precision_t* fluid_temperature = *ft;
-precision_t* fluid_temperature_o = *fto;
+  precision_t* fluid_temperature = *ft;
+  precision_t* fluid_temperature_o = *fto;
 
 #ifdef __INTEL_COMPILER
 #pragma ivdep
@@ -59,16 +57,16 @@ precision_t* fluid_temperature_o = *fto;
   }
 #endif
 
-  std::swap(*ft, *fto);;
+  std::swap(*ft, *fto);
+  ;
 }
 
-void Pdesolver::solvesolid(precision_t** st,
-                           precision_t** sto,
+void Pdesolver::solvesolid(precision_t** st, precision_t** sto,
                            precision_t boundary) {
-// Loop over inner N-2 cells
+  // Loop over inner N-2 cells
 
-precision_t* solid_temperature = *st;
-precision_t* solid_temperature_o = *sto;
+  precision_t* solid_temperature = *st;
+  precision_t* solid_temperature_o = *sto;
 
 #ifdef __INTEL_COMPILER
 #pragma ivdep
@@ -105,12 +103,28 @@ precision_t* solid_temperature_o = *sto;
   }
 #endif
 
-std::swap(*st,*sto);
+  std::swap(*st, *sto);
+}
 
+void Pdesolver::solvecoupling(precision_t* tf, precision_t* ts) {
+  // matrix inversion constants
+  precision_t a(1.0 + _hf * _dt);
+  precision_t b(-_hf * _dt);
+  precision_t c(-_hs * _dt);
+  precision_t d(1.0 + _hs * _dt);
+  precision_t denominator(d * a - b * c);
+
+  precision_t tmp_tf(0.0);
+
+  // TODO(dave): check aliasing
+  for (int i = 0; i < _numcells; ++i) {
+    tmp_tf = (tf[i] * d - ts[i] * b) / denominator;
+    ts[i] = (ts[i] * a - tf[i] * c) / denominator;
+    tf[i] = tmp_tf;
+  }
 }
 
 #ifdef TESTING
-
 void Pdesolver::testing() {
   const int n = 1;
   _k = 2 * __SC_PI * n / _simenv->_storage_height;
@@ -159,8 +173,8 @@ bool Pdesolver::verify(precision_t* errorf, precision_t* errors) {
   precision_t x(_dx * 0.5);
   for (int i = 0; i < _numcells; ++i) {
     solution[i] = sol(x);
-    fluid_temperature[i] = sol(x);
-    solid_temperature[i] = sol(x);
+    fluid_temperature[i] = sol(x) + 0.1337;
+    solid_temperature[i] = sol(x) + 0.1337;
     _source_solid[i] = -_dt * (2.0 * _alphas * _k * _k * std::cos(2 * _k * x));
     _source_fluid[i] = _dt * (-_uf * _k * std::sin(_k * x) +
                               _alphaf * _k * _k * std::cos(_k * x));
