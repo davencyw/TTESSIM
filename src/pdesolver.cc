@@ -13,13 +13,9 @@
 // TODO(dave): Optimize arithmetic!! (reordering)
 // TODO(dave): Solve swap problem in solvefluid/solid!!!
 
-void Pdesolver::solvefluid(precision_t** ft,
-                           precision_t** fto,
+void Pdesolver::solvefluid(precision_t* __restrict__ fluid_temperature,
+                           precision_t* __restrict__ fluid_temperature_o,
                            precision_t boundary, int state) {
-
-precision_t* fluid_temperature = *ft;
-precision_t* fluid_temperature_o = *fto;
-
 #ifdef __INTEL_COMPILER
 #pragma ivdep
 #elif __GNUC__
@@ -59,16 +55,13 @@ precision_t* fluid_temperature_o = *fto;
   }
 #endif
 
-  std::swap(*ft, *fto);;
+  // TODO(dave): swap pointers
 }
 
-void Pdesolver::solvesolid(precision_t** st,
-                           precision_t** sto,
+void Pdesolver::solvesolid(precision_t* __restrict__ solid_temperature,
+                           precision_t* __restrict__ solid_temperature_o,
                            precision_t boundary) {
 // Loop over inner N-2 cells
-
-precision_t* solid_temperature = *st;
-precision_t* solid_temperature_o = *sto;
 
 #ifdef __INTEL_COMPILER
 #pragma ivdep
@@ -104,9 +97,6 @@ precision_t* solid_temperature_o = *sto;
     solid_temperature_o[i] += _source_solid[i];
   }
 #endif
-
-std::swap(*st,*sto);
-
 }
 
 #ifdef TESTING
@@ -171,13 +161,15 @@ bool Pdesolver::verify(precision_t* errorf, precision_t* errors) {
   precision_t diff(1.0);
   int i(0);
   for (; i < _maxiterations && diff > _tol; ++i) {
-    solvefluid(&fluid_temperature, &fluid_temperature_o, leftboundary, 0);
+    solvefluid(fluid_temperature, fluid_temperature_o, leftboundary, 0);
     diff = 0.0;
     for (int j = 0; j < _numcells; ++j) {
       diff += std::abs(fluid_temperature[j] - fluid_temperature_o[j]);
     }
     diff = diff / static_cast<precision_t>(_numcells);
 
+    // TODO(dave): Check pointerswap with solvefluid
+    std::swap(fluid_temperature, fluid_temperature_o);
     //*DEBUG*/ std::cout << "DIFF: " << diff << "\n";
   }
 
@@ -187,13 +179,15 @@ bool Pdesolver::verify(precision_t* errorf, precision_t* errors) {
   diff = 1.0;
   i = 0;
   for (; i < _maxiterations && diff > _tol; ++i) {
-    solvesolid(&solid_temperature, &solid_temperature_o, leftboundary);
+    solvesolid(solid_temperature, solid_temperature_o, leftboundary);
     diff = 0.0;
     for (int j = 0; j < _numcells; ++j) {
       diff += std::abs(solid_temperature[j] - solid_temperature_o[j]);
     }
     diff = diff / static_cast<precision_t>(_numcells);
 
+    // TODO(dave): Check pointerswap with solvefluid
+    std::swap(solid_temperature, solid_temperature_o);
     //*DEBUG*/ std::cout << "DIFF: " << diff << "\n";
   }
 
