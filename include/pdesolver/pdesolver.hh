@@ -45,11 +45,11 @@ class Pdesolver {
     _numcells = _simenv->_numcells;
   };
 
-  void solvefluid(precision_t* fluid_temperature,
-                  precision_t* fluid_temperature_o, precision_t boundary,
+  void solvefluid(precision_t** fluid_temperature,
+                  precision_t** fluid_temperature_o, precision_t boundary,
                   int state);
-  void solvesolid(precision_t* solid_temperature,
-                  precision_t* solid_temperature_o, precision_t boundary);
+  void solvesolid(precision_t** solid_temperature,
+                  precision_t** solid_temperature_o, precision_t boundary);
 
 #ifdef TESTING
   void testing();
