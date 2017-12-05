@@ -29,8 +29,14 @@ int main(int argc, char const *argv[]) {
       << "T E S T I N G T E S T I N G T E S T I N T E S T I N G\033[0m\n\n\n";
 
   // start testing
-  Pdesolver pdesolver(&simenv);
-  pdesolver.testing();
+
+  unsigned int incremental(100);
+
+  for (int i = 1; i < 20; ++i) {
+    simenv._numcells = i * incremental;
+    Pdesolver pdesolver(&simenv);
+    pdesolver.testing();
+  }
 
   // TODO(dave): OVS -> change simenv and start testing again, file descriptor
   // is still the same

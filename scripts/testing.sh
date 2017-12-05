@@ -10,6 +10,7 @@ HEIGHT=33
 DIAMETER=6
 NUMCYCLES=100
 TSTEPSPERC=10
+OPS=1
 
 TDS0=0.1
 TDS1=0.1
@@ -42,6 +43,7 @@ HS=1
 #run
 clear
 ../build/bin/ttessim_testing			\
+						--ops $OPS		\
 						-N $NCELLS		\
 						-h $HEIGHT		\
 						-d $DIAMETER	\

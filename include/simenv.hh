@@ -70,6 +70,8 @@ struct SimEnv {
   int _numcycles;
   // tsteps per cycle;
   int _tsteppercycle;
+  // every _ops writetocsv
+  int _ops;
 
   // data environment
   //____________________

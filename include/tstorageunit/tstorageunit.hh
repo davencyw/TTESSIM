@@ -55,13 +55,13 @@ class Tstorageunit {
     _simenv._fs_fluid->open(_simenv._fullpath_fluid,
                             std::ofstream::out | std::ofstream::app);
     *_simenv._fs_fluid << _simenv._numcells << ";" << _simenv._deltat << ";"
-                       << "OUTPUTSTEP MISSING;" << _simenv._storage_height
+                       << _simenv._ops << ";" << _simenv._storage_height
                        << "\n";
 
     _simenv._fs_solid->open(_simenv._fullpath_solid,
                             std::ofstream::out | std::ofstream::trunc);
     *_simenv._fs_solid << _simenv._numcells << ";" << _simenv._deltat << ";"
-                       << "OUTPUTSTEP MISSING;" << _simenv._storage_height
+                       << _simenv._ops << ";" << _simenv._storage_height
                        << "\n";
   };
 

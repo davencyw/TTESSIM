@@ -33,6 +33,7 @@ void cmdpars(int argc, char const* argv[], SimEnv& simenv) {
   namespace po = boost::program_options;
   po::options_description desc("Parameters");
   desc.add_options()("help", "Print help messages")(
+      "ops", po::value<int>(&(simenv._ops))->required(), "output every ops")(
       ",N", po::value<int>(&(simenv._numcells))->required(), "number of cells")(
       ",h", po::value<precision_t>(&(simenv._storage_height))->required(),
       "storage height")(
