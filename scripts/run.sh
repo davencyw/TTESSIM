@@ -26,6 +26,8 @@ CF=0.1
 CS=0.1
 EPS=0.1
 UF=10
+HF=1
+HS=1
 
 #___________________________
 
@@ -59,3 +61,5 @@ clear
 						--epsilon $EPS	\
 						--uf $UF		\
 						--dt $DELTAT 	\
+						--hf $HF 	    \
+						--hs $HS 	    \

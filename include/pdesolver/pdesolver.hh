@@ -63,7 +63,8 @@ class Pdesolver {
   // These functions solve the governing fluid and
   // solid equations for a MMS given the slack term as
   // default or passed lambda expression.
-  bool verify(precision_t* errorf, precision_t* errors);
+  bool verify(precision_t* errorf, precision_t* errors, precision_t* iterf,
+              precision_t* iters);
 #endif
 
   const SimEnv* _simenv;

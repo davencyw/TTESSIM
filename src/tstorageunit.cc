@@ -17,7 +17,6 @@ bool Tstorageunit::simsteps(const int steps) { return simsteps(steps, 0); }
 // writes output every outputnstep-step. If outputnstep is 0, nothing will be
 // written
 bool Tstorageunit::simsteps(const int steps, const int outputnstep) {
-  // TODO(dave): output(writetocsv)
   int opns(outputnstep);
 
   if (!outputnstep) opns = steps;
@@ -27,9 +26,10 @@ bool Tstorageunit::simsteps(const int steps, const int outputnstep) {
     for (int stepj(0); stepj < opns; ++stepj) {
       simstep();
     }
+    // TODO(dave): Make asynchronous
     // output every outputnstep steps
-    writetocsv(_fluid_temperature, _simenv._numcells, true);
-    writetocsv(_solid_temperature, _simenv._numcells, false);
+    writetocsv(_fluid_temperature, _simenv._numcells, _simenv._fs_fluid);
+    writetocsv(_solid_temperature, _simenv._numcells, _simenv._fs_solid);
   }
 }
 
@@ -37,16 +37,12 @@ const int Tstorageunit::getstate() { return _state; }
 
 const bool Tstorageunit::isidle() { return _state > 1; }
 
-const bool Tstorageunit::writetocsv(precision_t* data, int size, bool fluid) {
+const bool Tstorageunit::writetocsv(precision_t* data, int size,
+                                    std::ofstream* stream) {
   // TODO(dave): Optimize
 
-  std::ofstream* fsp = _simenv._fs_solid;
-  if (fluid) {
-    fsp = _simenv._fs_fluid;
-  }
-
   for (int i = 0; i < size - 1; ++i) {
-    *fsp << data[i] << ";";
+    *stream << data[i] << ";";
   }
-  *fsp << data[size - 1] << "\n";
+  *stream << data[size - 1] << "\n";
 };

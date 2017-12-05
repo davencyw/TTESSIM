@@ -213,9 +213,12 @@ void Pdesolver::testing() {
 
   precision_t* errorf = new precision_t;
   precision_t* errors = new precision_t;
-  verify(errorf, errors);
-  std::cout << "ERRF: " << *errorf << std::endl;
-  std::cout << "ERRS: " << *errors << std::endl;
+  precision_t* iters = new precision_t;
+  precision_t* iterf = new precision_t;
+  verify(errorf, errors, iterf, iters);
+
+  std::cout << "ERRF: " << *errorf << "\t\tITERF: " << *iterf << std::endl;
+  std::cout << "ERRS: " << *errors << "\t\tITERS: " << *iters << std::endl;
 
   // output
   std::string filename("testing_OVS_r_" + std::to_string(_simenv->_runhash) +
@@ -232,7 +235,8 @@ void Pdesolver::testing() {
   fs.close();
 }
 
-bool Pdesolver::verify(precision_t* errorf, precision_t* errors) {
+bool Pdesolver::verify(precision_t* errorf, precision_t* errors,
+                       precision_t* iterf, precision_t* iters) {
   const auto sol = [this](precision_t x) { return std::cos(_k * x); };
 
   precision_t* solution =
@@ -250,8 +254,8 @@ bool Pdesolver::verify(precision_t* errorf, precision_t* errors) {
 
   // compute source terms
   // fill solution and initial values to arrays
-  precision_t leftboundary(sol(0));
   precision_t x(_dx * 0.5);
+  precision_t leftboundary(sol(x - 0.5 * _dx));
   for (int i = 0; i < _numcells; ++i) {
     solution[i] = sol(x);
     fluid_temperature[i] = sol(x) + 0.1337;
@@ -276,7 +280,7 @@ bool Pdesolver::verify(precision_t* errorf, precision_t* errors) {
     //*DEBUG*/ std::cout << "DIFF: " << diff << "\n";
   }
 
-  /*DEBUG*/ std::cout << "ITERF: " << i << std::endl;
+  *iterf = i;
 
   // loop while solution not converged
   diff = 1.0;
@@ -292,7 +296,7 @@ bool Pdesolver::verify(precision_t* errorf, precision_t* errors) {
     //*DEBUG*/ std::cout << "DIFF: " << diff << "\n";
   }
 
-  /*DEBUG*/ std::cout << "ITERS: " << i << std::endl;
+  *iters = i;
 
   // compute difference to solution
   precision_t difff_solution(0.0);

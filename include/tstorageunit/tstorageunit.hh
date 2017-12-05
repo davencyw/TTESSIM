@@ -86,7 +86,7 @@ class Tstorageunit {
   const bool isidle();
 
   // output functions
-  const bool writetocsv(precision_t*, int, bool);
+  const bool writetocsv(precision_t*, int, std::ofstream* stream);
 
   // simulation environment
   const SimEnv _simenv;
