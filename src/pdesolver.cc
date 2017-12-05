@@ -139,8 +139,7 @@ void Pdesolver::solvefluid(precision_t** ft, precision_t** fto,
   ;
 }
 
-void Pdesolver::solvesolid(precision_t** st, precision_t** sto,
-                           precision_t boundary) {
+void Pdesolver::solvesolid(precision_t** st, precision_t** sto) {
   // Loop over inner N-2 cells
 
   precision_t* solid_temperature = *st;
@@ -193,7 +192,12 @@ void Pdesolver::solvecoupling(precision_t* tf, precision_t* ts) {
 
   precision_t tmp_tf(0.0);
 
-  // TODO(dave): check aliasing
+// TODO(dave): check aliasing
+#ifdef __INTEL_COMPILER
+#pragma ivdep
+#elif __GNUC__
+#pragma GCC ivdep
+#endif
   for (int i = 0; i < _numcells; ++i) {
     tmp_tf = (tf[i] * d - ts[i] * b) / denominator;
     ts[i] = (ts[i] * a - tf[i] * c) / denominator;
@@ -252,7 +256,7 @@ bool Pdesolver::verify(precision_t* errorf, precision_t* errors) {
     solution[i] = sol(x);
     fluid_temperature[i] = sol(x) + 0.1337;
     solid_temperature[i] = sol(x) + 0.1337;
-    _source_solid[i] = -_dt * (2.0 * _alphas * _k * _k * std::cos(2 * _k * x));
+    _source_solid[i] = _dt * (_alphas * _k * std::sin(_k * x));
     _source_fluid[i] = _dt * (-_uf * _k * std::sin(_k * x) +
                               _alphaf * _k * _k * std::cos(_k * x));
     x += _dx;
@@ -278,7 +282,7 @@ bool Pdesolver::verify(precision_t* errorf, precision_t* errors) {
   diff = 1.0;
   i = 0;
   for (; i < _maxiterations && diff > _tol; ++i) {
-    solvesolid(&solid_temperature, &solid_temperature_o, leftboundary);
+    solvesolid(&solid_temperature, &solid_temperature_o);
     diff = 0.0;
     for (int j = 0; j < _numcells; ++j) {
       diff += std::abs(solid_temperature[j] - solid_temperature_o[j]);
@@ -295,9 +299,9 @@ bool Pdesolver::verify(precision_t* errorf, precision_t* errors) {
   precision_t diffs_solution(0.0);
   for (int i = 0; i < _numcells; ++i) {
     difff_solution +=
-        std::abs((fluid_temperature_o[i] - solution[i]) / solution[i]);
+        std::abs((fluid_temperature[i] - solution[i]) / solution[i]);
     diffs_solution +=
-        std::abs((solid_temperature_o[i] - solution[i]) / solution[i]);
+        std::abs((solid_temperature[i] - solution[i]) / solution[i]);
   }
 
   *errorf = difff_solution / static_cast<precision_t>(_numcells);

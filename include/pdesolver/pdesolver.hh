@@ -51,7 +51,7 @@ class Pdesolver {
                   precision_t** fluid_temperature_o, precision_t boundary,
                   const unsigned int state);
   void solvesolid(precision_t** solid_temperature,
-                  precision_t** solid_temperature_o, precision_t boundary);
+                  precision_t** solid_temperature_o);
   void solvecoupling(precision_t* tf, precision_t* ts);
 
 #ifdef TESTING
@@ -96,7 +96,7 @@ class Pdesolver {
   int _n;
   precision_t _k;
   static constexpr precision_t _tol = 1e-8;
-  static constexpr int _maxiterations = 50000;
+  static constexpr int _maxiterations = 500000;
   precision_t* _source_fluid;
   precision_t* _source_solid;
 #endif
