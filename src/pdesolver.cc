@@ -39,16 +39,17 @@ void Pdesolver::solvediffusion(array_t* temperature, array_t* temperature_old,
 void Pdesolver::solveadvection(array_t* temperature, array_t* temperature_old,
                                precision_t cflnumber,
                                precision_t boundary_temperature) {
-  array_t bot = temperature->head(_numcells - 2);
-  array_t mid = temperature->segment(1, _numcells - 2);
+  array_t tail = temperature->tail(_numcells - 1);
+  array_t head = temperature->head(_numcells - 1);
+  array_t diff = head - tail;
 
   if (cflnumber > 0) {
     (*temperature_old)(0) = boundary_temperature;
-    temperature_old->segment(1, _numcells - 2) = mid - cflnumber * (mid - bot);
+    temperature_old->tail(_numcells - 1) = cflnumber * diff;
 
   } else if (cflnumber < 0) {
     (*temperature_old)(_numcells - 1) = boundary_temperature;
-    temperature_old->head(_numcells - 1) = bot - cflnumber * (mid - bot);
+    temperature_old->head(_numcells - 1) = cflnumber * diff;
   } else {
     return;
   }
@@ -62,24 +63,31 @@ void Pdesolver::solvefluid(array_t** temperature, array_t** temperature_old,
 
   // diffusion part
   solvediffusion(*temperature, *temperature_old, diffusionnumber);
+  array_t diffusion_tmp = **temperature_old;
   // advection part
   solveadvection(*temperature, *temperature_old, cflnumber,
                  boundary_temperature);
 
   if (cflnumber > 0) {
+    (*temperature_old)->tail(_numcells - 1) +=
+        (*temperature)->tail(_numcells - 1);
+
   } else if (cflnumber < 0) {
+    (*temperature_old)->head(_numcells - 1) +=
+        (*temperature)->head(_numcells - 1);
   }
 
+  **temperature_old += diffusion_tmp;
+
   std::swap(temperature, temperature_old);
+#ifdef TESTING
+  **temperature += _source_fluid;
+#endif
 }
 
 void Pdesolver::solvesolid(array_t** temperature, array_t** temperature_old,
                            precision_t diffusionnumber) {
   solvediffusion(*temperature, *temperature_old, diffusionnumber);
-  //(**temperature_old) = (**temperature_old) + (**temperature);
-
-  // (*temperature)->head(_numcells) =
-  //     (*temperature_old)->head(_numcells) + (*temperature)->head(_numcells);
   **temperature_old += **temperature;
 
   std::swap(*temperature, *temperature_old);
@@ -97,6 +105,8 @@ void Pdesolver::verify(precision_t* errorf, precision_t* errors,
   // diffusionnumber < 0.5!
   const precision_t diffusionnumber(_dt / (_dx * _dx) * alpha);
   assert(diffusionnumber <= 0.5);
+
+  const precision_t cflnumber(_uf * _dt / _dx);
 
   // create verification environment (grid, solution and source terms)
   array_t grid = array_t::LinSpaced(_numcells, _dx / 2.0,
@@ -121,8 +131,8 @@ void Pdesolver::verify(precision_t* errorf, precision_t* errors,
   do {
     solvesolid(&temperature_ptr, &temperature_o_ptr, diffusionnumber);
 
-    diff = (temperature - temperature_o).abs().sum();
-    diff /= static_cast<precision_t>(_numcells);
+    diff = (temperature - temperature_o).abs().sum() /
+           static_cast<precision_t>(_numcells);
 
     ++iter;
   } while (diff > k_tol && iter < k_maxiterations);
@@ -131,6 +141,30 @@ void Pdesolver::verify(precision_t* errorf, precision_t* errors,
   *errors = (temperature - solution).abs().sum() /
             static_cast<precision_t>(_numcells);
   *iters = iter;
+
+  // verify fluid equations
+  _source_fluid =
+      _source_solid +
+      cflnumber * ((_k * uppergridfaces).cos() - (_k * lowergridfaces).cos());
+  temperature = solution;
+  temperature_o = array_t::Zero(_numcells);
+  assert(temperature_ptr == &temperature);
+  assert(temperature_o_ptr == &temperature_o);
+
+  diff = 0.0;
+  iter = 0;
+  do {
+    solvefluid(&temperature_ptr, &temperature_o_ptr, cflnumber, diffusionnumber,
+               1);
+    diff = (temperature - temperature_o).abs().sum() /
+           static_cast<precision_t>(_numcells);
+
+    ++iter;
+  } while (diff > k_tol && iter < k_maxiterations);
+
+  *errorf = (temperature - solution).abs().sum() /
+            static_cast<precision_t>(_numcells);
+  *iterf = iter;
 }
 
 void Pdesolver::testing() {
@@ -145,7 +179,7 @@ void Pdesolver::testing() {
   verify(errorf, errors, iterf, iters);
 
   std::cout << "   N: " << _simenv->_numcells << "\n";
-  // std::cout << "ERRF: " << *errorf << "\t\tITERF: " << *iterf << "\n";
+  std::cout << "ERRF: " << *errorf << "\t\tITERF: " << *iterf << "\n";
   std::cout << "ERRS: " << *errors << "\t\tITERS: " << *iters << "\n\n";
 
   // output
