@@ -55,12 +55,29 @@ void Pdesolver::solveadvection(array_t* temperature, array_t* temperature_old,
   }
 }
 
+void Pdesolver::solvecoupling(array_t* temperature_solid,
+                              array_t* temperature_fluid) {
+  precision_t coeff_a(1.0 + _hf * _dt);
+  precision_t coeff_b(-(-_hf * _dt));
+  precision_t coeff_c(-(-_hs * _dt));
+  precision_t coeff_d(1 + _hs * _dt);
+  precision_t coeff_determinant(1.0 / (coeff_a * coeff_d - coeff_b * coeff_c));
+
+  *temperature_fluid =
+      (*temperature_fluid * coeff_d + *temperature_solid * coeff_b) *
+      coeff_determinant;
+  *temperature_solid =
+      (*temperature_fluid * coeff_c + *temperature_solid * coeff_a) *
+      coeff_determinant;
+}
+
 void Pdesolver::solvefluid(array_t** temperature, array_t** temperature_old,
                            precision_t cflnumber, precision_t diffusionnumber,
                            precision_t boundary_temperature) {
   assert((*temperature_old)->size() == (*temperature)->size());
   assert((*temperature_old)->size() == _numcells);
 
+  // TODO(dave): add another permanent memory allocator for diffusion_tmp
   // diffusion part
   solvediffusion(*temperature, *temperature_old, diffusionnumber);
   array_t diffusion_tmp = **temperature_old;
@@ -100,7 +117,7 @@ void Pdesolver::solvesolid(array_t** temperature, array_t** temperature_old,
 
 void Pdesolver::verify(precision_t* errorf, precision_t* errors,
                        precision_t* iterf, precision_t* iters) {
-  const precision_t alpha(0.1);
+  const precision_t alpha(_alphas);
 
   // diffusionnumber < 0.5!
   const precision_t diffusionnumber(_dt / (_dx * _dx) * alpha);
@@ -148,6 +165,8 @@ void Pdesolver::verify(precision_t* errorf, precision_t* errors,
       cflnumber * ((_k * uppergridfaces).cos() - (_k * lowergridfaces).cos());
   temperature = solution;
   temperature_o = array_t::Zero(_numcells);
+  temperature_ptr = &temperature;
+  temperature_o_ptr = &temperature_o;
   assert(temperature_ptr == &temperature);
   assert(temperature_o_ptr == &temperature_o);
 
@@ -170,7 +189,6 @@ void Pdesolver::verify(precision_t* errorf, precision_t* errors,
 void Pdesolver::testing() {
   const int n = 1;
   _k = 2.0 * __SC_PI * static_cast<precision_t>(n) / _simenv->_storage_height;
-  // _n = n;
 
   precision_t* errorf = new precision_t;
   precision_t* errors = new precision_t;
@@ -178,6 +196,7 @@ void Pdesolver::testing() {
   precision_t* iterf = new precision_t;
   verify(errorf, errors, iterf, iters);
 
+  std::cout.precision(10);
   std::cout << "   N: " << _simenv->_numcells << "\n";
   std::cout << "ERRF: " << *errorf << "\t\tITERF: " << *iterf << "\n";
   std::cout << "ERRS: " << *errors << "\t\tITERS: " << *iters << "\n\n";

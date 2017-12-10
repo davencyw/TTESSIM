@@ -56,8 +56,7 @@ class Pdesolver {
                   precision_t boundary_temperature);
   void solvesolid(array_t** temperature, array_t** temperature_old,
                   precision_t diffusionnumber);
-
-  void solvecoupling(precision_t* tf, precision_t* ts);
+  void solvecoupling(array_t* temperature_solid, array_t* temperature_fluid);
 
 #ifdef TESTING
   void testing();
