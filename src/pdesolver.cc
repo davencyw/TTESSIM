@@ -26,14 +26,13 @@ void Pdesolver::solvediffusion(array_t* temperature, array_t* temperature_old,
   array_t top = temperature->tail(_numcells - 2);
 
   temperature_old->segment(1, _numcells - 2) =
-      mid + diffusionnumber * (top - 2.0 * mid + bot);
+      diffusionnumber * (top - 2.0 * mid + bot);
 
   (*temperature_old)(_numcells - 1) =
-      (*temperature)(_numcells - 1) +
       diffusionnumber *
-          ((*temperature)(_numcells - 2) - (*temperature)(_numcells - 1));
+      ((*temperature)(_numcells - 2) - (*temperature)(_numcells - 1));
+
   (*temperature_old)(0) =
-      (*temperature)(0) +
       diffusionnumber * ((*temperature)(1) - (*temperature)(0));
 }
 
@@ -81,6 +80,7 @@ void Pdesolver::solvesolid(array_t** temperature, array_t** temperature_old,
 
   // (*temperature)->head(_numcells) =
   //     (*temperature_old)->head(_numcells) + (*temperature)->head(_numcells);
+  **temperature_old += **temperature;
 
   std::swap(*temperature, *temperature_old);
 #ifdef TESTING
