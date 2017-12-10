@@ -12,7 +12,7 @@
 #include <iostream>
 
 // TODO(dave): write gridview/gridclass!
-// TODO(dave): write memory view for segments!! -^^^^
+// URGENT_TODO(dave): write memory view for segments!! -^^^^
 
 void Pdesolver::solvediffusion(array_t* temperature_old, array_t* temperature,
                                precision_t diffusionnumber) {
@@ -34,9 +34,8 @@ void Pdesolver::solvediffusion(array_t* temperature_old, array_t* temperature,
   (*temperature_old)(0) =
       (*temperature)(0) +
       diffusionnumber * ((*temperature)(1) - (*temperature)(0));
-
 #ifdef TESTING
-  (*temperature_old) += _source_solid;
+  *temperature_old += _source_solid;
 #endif
 }
 
@@ -54,14 +53,15 @@ void Pdesolver::solveadvection(array_t* temperature, array_t* temperature_old,
     (*temperature_old)(_numcells - 1) = boundary_temperature;
     temperature_old->head(_numcells - 1) = bot - cflnumber * (mid - bot);
   } else {
+    return;
   }
 }
 
 void Pdesolver::solvefluid(array_t** temperature, array_t** temperature_old,
                            precision_t cflnumber, precision_t diffusionnumber,
                            precision_t boundary_temperature) {
-  assert(temperature_old->size() == temperature->size());
-  assert(temperature_old->size() == _numcells);
+  assert((*temperature_old)->size() == (*temperature)->size());
+  assert((*temperature_old)->size() == _numcells);
 
   // diffusion part
   // advection part
