@@ -11,6 +11,7 @@
 #include <fstream>
 #include <iostream>
 
+// TODO(dave): write documentation
 // TODO(dave): write gridview/gridclass!
 // URGENT_TODO(dave): write memory view for segments!! -^^^^
 
@@ -24,15 +25,15 @@ void Pdesolver::solvediffusion(array_t* temperature_old, array_t* temperature,
   array_t top = temperature->tail(_numcells - 2);
 
   temperature_old->segment(1, _numcells - 2) =
-      mid + diffusionnumber * (top - 2.0 * mid + bot);
+      diffusionnumber * (top - 2.0 * mid + bot);
 
   (*temperature_old)(_numcells - 1) =
-      (*temperature)(_numcells - 1) +
+
       diffusionnumber *
-          ((*temperature)(_numcells - 2) - (*temperature)(_numcells - 1));
+      ((*temperature)(_numcells - 2) - (*temperature)(_numcells - 1));
 
   (*temperature_old)(0) =
-      (*temperature)(0) +
+
       diffusionnumber * ((*temperature)(1) - (*temperature)(0));
 #ifdef TESTING
   *temperature_old += _source_solid;
@@ -64,7 +65,14 @@ void Pdesolver::solvefluid(array_t** temperature, array_t** temperature_old,
   assert((*temperature_old)->size() == _numcells);
 
   // diffusion part
+  solvediffusion(*temperature, *temperature_old, diffusionnumber);
   // advection part
+  solveadvection(*temperature, *temperature_old, cflnumber,
+                 boundary_temperature);
+
+  if (cflnumber > 0) {
+  } else if (cflnumber < 0) {
+  }
 
   std::swap(temperature, temperature_old);
 }
@@ -72,6 +80,11 @@ void Pdesolver::solvefluid(array_t** temperature, array_t** temperature_old,
 void Pdesolver::solvesolid(array_t** temperature, array_t** temperature_old,
                            precision_t diffusionnumber) {
   solvediffusion(*temperature, *temperature_old, diffusionnumber);
+  //(**temperature_old) = (**temperature_old) + (**temperature);
+
+  (*temperature)->head(_numcells) =
+      (*temperature_old)->head(_numcells) + (*temperature)->head(_numcells);
+
   std::swap(*temperature, *temperature_old);
 }
 
