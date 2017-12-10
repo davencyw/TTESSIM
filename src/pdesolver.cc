@@ -11,205 +11,121 @@
 #include <fstream>
 #include <iostream>
 
-// TODO(dave): Optimize arithmetic!! (reordering)
-// TODO(dave): change switch to generic generator
-void Pdesolver::solvefluid(precision_t** ft, precision_t** fto,
-                           precision_t boundary, const unsigned int state) {
-  precision_t* fluid_temperature = *ft;
-  precision_t* fluid_temperature_o = *fto;
+// TODO(dave): write gridview/gridclass!
+// TODO(dave): write memory view for segments!! -^^^^
 
-  assert(state < 4);
+void Pdesolver::solvediffusion(array_t* temperature_old, array_t* temperature,
+                               precision_t diffusionnumber) {
+  assert(temperature_old->size() == temperature->size());
+  assert(temperature_old->size() == _numcells);
 
-  const int N(_simenv->_numcells - 1);
-  const int Nm1(_simenv->_numcells - 2);
+  array_t bot = temperature->head(_numcells - 2);
+  array_t mid = temperature->segment(1, _numcells - 2);
+  array_t top = temperature->tail(_numcells - 2);
 
-  switch (0) {
-    case 0: {
-#ifdef __INTEL_COMPILER
-#pragma ivdep
-#elif __GNUC__
-#pragma GCC ivdep
-#endif
-      for (int i = 1; i < _simenv->_numcells - 1; ++i) {
-        const precision_t tfi = fluid_temperature[i];
-        const precision_t tfim1 = fluid_temperature[i - 1];
-        const precision_t tfip1 = fluid_temperature[i + 1];
+  temperature_old->segment(1, _numcells - 2) =
+      mid + diffusionnumber * (top - 2.0 * mid + bot);
 
-        fluid_temperature_o[i] = tfi - _dt * _uf * _idx * (tfi - tfim1) +
-                                 _alphafidx2dt * (tfim1 - 2.0 * tfi + tfip1);
-      }
-      // boundary cells
-      fluid_temperature_o[0] =
-          fluid_temperature[0] -
-          _dt * _uf * _idx * (fluid_temperature[0] - boundary) +
-          _alphafidx2dt *
-              (fluid_temperature[1] - 2.0 * fluid_temperature[0] + boundary);
-      fluid_temperature_o[N] =
-          fluid_temperature[N] -
-          _dt * _uf * _idx * (fluid_temperature[N] - fluid_temperature[Nm1]) +
-          _alphafidx2dt * (fluid_temperature[Nm1] - fluid_temperature[N]);
-    } break;
-    case 1: {
-#ifdef __INTEL_COMPILER
-#pragma ivdep
-#elif __GNUC__
-#pragma GCC ivdep
-#endif
-      for (int i = 1; i < _simenv->_numcells - 1; ++i) {
-        const precision_t tfi = fluid_temperature[i];
-        const precision_t tfim1 = fluid_temperature[i - 1];
-        const precision_t tfip1 = fluid_temperature[i + 1];
+  (*temperature_old)(_numcells - 1) =
+      (*temperature)(_numcells - 1) +
+      diffusionnumber *
+          ((*temperature)(_numcells - 2) - (*temperature)(_numcells - 1));
 
-        fluid_temperature_o[i] =
-            tfi + _alphafidx2dt * (tfim1 - 2.0 * tfi + tfip1);
-      }
-      // boundary cells
-      fluid_temperature_o[0] =
-          fluid_temperature[0] +
-          _alphafidx2dt * (fluid_temperature[1] - fluid_temperature[0]);
-      fluid_temperature_o[N] =
-          fluid_temperature[N] -
-          +_alphafidx2dt * (fluid_temperature[Nm1] - fluid_temperature[N]);
-    } break;
-    case 2: {
-#ifdef __INTEL_COMPILER
-#pragma ivdep
-#elif __GNUC__
-#pragma GCC ivdep
-#endif
-      for (int i = 1; i < _simenv->_numcells - 1; ++i) {
-        const precision_t tfi = fluid_temperature[i];
-        const precision_t tfim1 = fluid_temperature[i - 1];
-        const precision_t tfip1 = fluid_temperature[i + 1];
+  (*temperature_old)(0) =
+      (*temperature)(0) +
+      diffusionnumber * ((*temperature)(1) - (*temperature)(0));
 
-        fluid_temperature_o[i] = tfi - _dt * _uf * _idx * (tfip1 - tfi) +
-                                 _alphafidx2dt * (tfim1 - 2 * tfi + tfip1);
-      }
-      // boundary cells
-      fluid_temperature_o[0] =
-          fluid_temperature[0] -
-          _dt * _uf * _idx * (fluid_temperature[1] - fluid_temperature[0]) +
-          _alphafidx2dt * (fluid_temperature[1] - fluid_temperature[0]);
-      fluid_temperature_o[N] =
-          fluid_temperature[N] -
-          _dt * _uf * _idx * (boundary - fluid_temperature[N]) +
-          _alphafidx2dt *
-              (boundary - 2.0 * fluid_temperature[N] + fluid_temperature[Nm1]);
-    } break;
-    case 3: {
-#ifdef __INTEL_COMPILER
-#pragma ivdep
-#elif __GNUC__
-#pragma GCC ivdep
-#endif
-      for (int i = 1; i < _simenv->_numcells - 1; ++i) {
-        const precision_t tfi = fluid_temperature[i];
-        const precision_t tfim1 = fluid_temperature[i - 1];
-        const precision_t tfip1 = fluid_temperature[i + 1];
-
-        fluid_temperature_o[i] =
-            tfi + _alphafidx2dt * (tfim1 - 2 * tfi + tfip1);
-      }
-      // boundary cells
-      fluid_temperature_o[0] =
-          fluid_temperature[0] +
-          _alphafidx2dt * (fluid_temperature[1] - fluid_temperature[0]);
-      fluid_temperature_o[N] =
-          fluid_temperature[N] -
-          +_alphafidx2dt * (fluid_temperature[Nm1] - fluid_temperature[N]);
-    } break;
-
-    default: { std::cout << "E R R O R INVALID STATE\n"; }
-  }
-
-// mms
 #ifdef TESTING
-  assert(state == 0);
-#ifdef __INTEL_COMPILER
-#pragma ivdep
-#elif __GNUC__
-#pragma GCC ivdep
+  (*temperature_old) += _source_solid;
 #endif
-  for (int i = 0; i < _simenv->_numcells; ++i) {
-    fluid_temperature_o[i] += _source_fluid[i];
-  }
-#endif
-
-  std::swap(*ft, *fto);
-  ;
 }
 
-void Pdesolver::solvesolid(precision_t** st, precision_t** sto) {
-  // Loop over inner N-2 cells
+void Pdesolver::solveadvection(array_t* temperature, array_t* temperature_old,
+                               precision_t cflnumber,
+                               precision_t boundary_temperature) {
+  array_t bot = temperature->head(_numcells - 2);
+  array_t mid = temperature->segment(1, _numcells - 2);
 
-  precision_t* solid_temperature = *st;
-  precision_t* solid_temperature_o = *sto;
+  if (cflnumber > 0) {
+    (*temperature_old)(0) = boundary_temperature;
+    temperature_old->segment(1, _numcells - 2) = mid - cflnumber * (mid - bot);
 
-#ifdef __INTEL_COMPILER
-#pragma ivdep
-#elif __GNUC__
-#pragma GCC ivdep
-#endif
-  for (int i = 1; i < _simenv->_numcells - 1; ++i) {
-    const precision_t tsi = solid_temperature[i];
-    const precision_t tsim1 = solid_temperature[i - 1];
-    const precision_t tsip1 = solid_temperature[i + 1];
-    solid_temperature_o[i] = tsi + _alphasidx2dt * (tsip1 - 2 * tsi + tsim1);
-  }
-
-  const int N(_simenv->_numcells - 1);
-  const int Nm1(_simenv->_numcells - 2);
-  // Boundary cells
-  solid_temperature_o[0] =
-      solid_temperature[0] +
-      _alphasidx2dt * (solid_temperature[1] - solid_temperature[0]);
-  solid_temperature_o[N] =
-      solid_temperature[N] +
-      _alphasidx2dt * (solid_temperature[Nm1] - solid_temperature[N]);
-
-// mms
-#ifdef TESTING
-#ifdef __INTEL_COMPILER
-#pragma ivdep
-#elif __GNUC__
-#pragma GCC ivdep
-#endif
-  for (int i = 0; i < _simenv->_numcells; ++i) {
-    solid_temperature_o[i] += _source_solid[i];
-  }
-#endif
-
-  std::swap(*st, *sto);
-}
-
-void Pdesolver::solvecoupling(precision_t* tf, precision_t* ts) {
-  // matrix inversion constants
-  precision_t a(1.0 + _hf * _dt);
-  precision_t b(-_hf * _dt);
-  precision_t c(-_hs * _dt);
-  precision_t d(1.0 + _hs * _dt);
-  precision_t denominator(d * a - b * c);
-
-  precision_t tmp_tf(0.0);
-
-// TODO(dave): check aliasing
-#ifdef __INTEL_COMPILER
-#pragma ivdep
-#elif __GNUC__
-#pragma GCC ivdep
-#endif
-  for (int i = 0; i < _numcells; ++i) {
-    tmp_tf = (tf[i] * d - ts[i] * b) / denominator;
-    ts[i] = (ts[i] * a - tf[i] * c) / denominator;
-    tf[i] = tmp_tf;
+  } else if (cflnumber < 0) {
+    (*temperature_old)(_numcells - 1) = boundary_temperature;
+    temperature_old->head(_numcells - 1) = bot - cflnumber * (mid - bot);
+  } else {
   }
 }
 
+void Pdesolver::solvefluid(array_t** temperature, array_t** temperature_old,
+                           precision_t cflnumber, precision_t diffusionnumber,
+                           precision_t boundary_temperature) {
+  assert(temperature_old->size() == temperature->size());
+  assert(temperature_old->size() == _numcells);
+
+  // diffusion part
+  // advection part
+
+  std::swap(temperature, temperature_old);
+}
+
+void Pdesolver::solvesolid(array_t** temperature, array_t** temperature_old,
+                           precision_t diffusionnumber) {
+  solvediffusion(*temperature, *temperature_old, diffusionnumber);
+  std::swap(*temperature, *temperature_old);
+}
+
 #ifdef TESTING
+
+void Pdesolver::verify(precision_t* errorf, precision_t* errors,
+                       precision_t* iterf, precision_t* iters) {
+  const precision_t alpha(0.1);
+
+  // diffusionnumber < 0.5!
+  const precision_t diffusionnumber(_dt / (_dx * _dx) * alpha);
+  assert(diffusionnumber <= 0.5);
+
+  // create verification environment (grid, solution and source terms)
+  array_t grid = array_t::LinSpaced(_numcells, _dx / 2.0,
+                                    _simenv->_storage_height - _dx / 2.0);
+  array_t gridfaces =
+      array_t::LinSpaced(_numcells + 1, 0, _simenv->_storage_height);
+  array_t lowergridfaces = gridfaces.head(_numcells);
+  array_t uppergridfaces = gridfaces.tail(_numcells);
+
+  _source_solid = (_k * _dt * alpha / _dx) *
+                  ((_k * uppergridfaces).sin() - (_k * lowergridfaces).sin());
+  array_t solution = (_k * grid).cos();
+  array_t temperature = solution;
+  array_t temperature_o = array_t::Zero(_numcells);
+
+  array_t* temperature_ptr = &temperature;
+  array_t* temperature_o_ptr = &temperature_o;
+
+  // verify solid equations
+  precision_t diff(0.0);
+  unsigned int iter(0);
+  do {
+    solvesolid(&temperature_ptr, &temperature_o_ptr, diffusionnumber);
+
+    diff = (temperature - temperature_o).abs().sum();
+    diff /= static_cast<precision_t>(_numcells);
+
+    ++iter;
+  } while (diff > k_tol && iter < k_maxiterations);
+
+  // computer error:
+  *errors = (temperature - solution).abs().sum() /
+            static_cast<precision_t>(_numcells);
+  *iters = iter;
+
+  // verify fluid equations
+}
+
 void Pdesolver::testing() {
   const int n = 1;
-  _k = 2 * __SC_PI * n / _simenv->_storage_height;
-  _n = n;
+  _k = 2.0 * __SC_PI * static_cast<precision_t>(n) / _simenv->_storage_height;
+  // _n = n;
 
   precision_t* errorf = new precision_t;
   precision_t* errors = new precision_t;
@@ -217,8 +133,9 @@ void Pdesolver::testing() {
   precision_t* iterf = new precision_t;
   verify(errorf, errors, iterf, iters);
 
-  std::cout << "ERRF: " << *errorf << "\t\tITERF: " << *iterf << std::endl;
-  std::cout << "ERRS: " << *errors << "\t\tITERS: " << *iters << std::endl;
+  std::cout << "   N: " << _simenv->_numcells << "\n";
+  std::cout << "ERRF: " << *errorf << "\t\tITERF: " << *iterf << "\n";
+  std::cout << "ERRS: " << *errors << "\t\tITERS: " << *iters << "\n\n";
 
   // output
   std::string filename("testing_OVS_r_" + std::to_string(_simenv->_runhash) +
@@ -234,90 +151,5 @@ void Pdesolver::testing() {
   fs << _simenv->_numcells << ";" << *errors << "\n";
   fs.close();
 }
-
-bool Pdesolver::verify(precision_t* errorf, precision_t* errors,
-                       precision_t* iterf, precision_t* iters) {
-  const auto sol = [this](precision_t x) { return std::cos(_k * x); };
-
-  precision_t* solution =
-      (precision_t*)_mm_malloc(sizeof(precision_t) * _numcells, 32);
-  precision_t* fluid_temperature =
-      (precision_t*)_mm_malloc(sizeof(precision_t) * _numcells, 32);
-  precision_t* solid_temperature =
-      (precision_t*)_mm_malloc(sizeof(precision_t) * _numcells, 32);
-  precision_t* fluid_temperature_o =
-      (precision_t*)_mm_malloc(sizeof(precision_t) * _numcells, 32);
-  precision_t* solid_temperature_o =
-      (precision_t*)_mm_malloc(sizeof(precision_t) * _numcells, 32);
-  _source_fluid = (precision_t*)_mm_malloc(sizeof(precision_t) * _numcells, 32);
-  _source_solid = (precision_t*)_mm_malloc(sizeof(precision_t) * _numcells, 32);
-
-  // compute source terms
-  // fill solution and initial values to arrays
-  precision_t x(_dx * 0.5);
-  precision_t leftboundary(sol(x - 0.5 * _dx));
-  for (int i = 0; i < _numcells; ++i) {
-    solution[i] = sol(x);
-    fluid_temperature[i] = sol(x) + 0.1337;
-    solid_temperature[i] = sol(x) + 0.1337;
-    _source_solid[i] = _dt * (_alphas * _k * std::sin(_k * x));
-    _source_fluid[i] = _dt * (-_uf * _k * std::sin(_k * x) +
-                              _alphaf * _k * _k * std::cos(_k * x));
-    x += _dx;
-  }
-
-  // loop while solution not converged
-  precision_t diff(1.0);
-  int i(0);
-  for (; i < _maxiterations && diff > _tol; ++i) {
-    solvefluid(&fluid_temperature, &fluid_temperature_o, leftboundary, 0);
-    diff = 0.0;
-    for (int j = 0; j < _numcells; ++j) {
-      diff += std::abs(fluid_temperature[j] - fluid_temperature_o[j]);
-    }
-    diff = diff / static_cast<precision_t>(_numcells);
-
-    //*DEBUG*/ std::cout << "DIFF: " << diff << "\n";
-  }
-
-  *iterf = i;
-
-  // loop while solution not converged
-  diff = 1.0;
-  i = 0;
-  for (; i < _maxiterations && diff > _tol; ++i) {
-    solvesolid(&solid_temperature, &solid_temperature_o);
-    diff = 0.0;
-    for (int j = 0; j < _numcells; ++j) {
-      diff += std::abs(solid_temperature[j] - solid_temperature_o[j]);
-    }
-    diff = diff / static_cast<precision_t>(_numcells);
-
-    //*DEBUG*/ std::cout << "DIFF: " << diff << "\n";
-  }
-
-  *iters = i;
-
-  // compute difference to solution
-  precision_t difff_solution(0.0);
-  precision_t diffs_solution(0.0);
-  for (int i = 0; i < _numcells; ++i) {
-    difff_solution +=
-        std::abs((fluid_temperature[i] - solution[i]) / solution[i]);
-    diffs_solution +=
-        std::abs((solid_temperature[i] - solution[i]) / solution[i]);
-  }
-
-  *errorf = difff_solution / static_cast<precision_t>(_numcells);
-  *errors = diffs_solution / static_cast<precision_t>(_numcells);
-
-  _mm_free(fluid_temperature);
-  _mm_free(solid_temperature);
-  _mm_free(fluid_temperature_o);
-  _mm_free(solid_temperature_o);
-  _mm_free(solution);
-  _mm_free(_source_fluid);
-  _mm_free(_source_solid);
-};
 
 #endif

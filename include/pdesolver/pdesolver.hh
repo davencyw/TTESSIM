@@ -47,11 +47,16 @@ class Pdesolver {
     _hs = _simenv->_hs;
   };
 
-  void solvefluid(precision_t** fluid_temperature,
-                  precision_t** fluid_temperature_o, precision_t boundary,
-                  const unsigned int state);
-  void solvesolid(precision_t** solid_temperature,
-                  precision_t** solid_temperature_o);
+  void solvediffusion(array_t* temperature, array_t* temperature_old,
+                      precision_t diffusionnumber);
+  void solveadvection(array_t* temperature, array_t* temperature_old,
+                      precision_t cflnumber, precision_t boundary_temperature);
+  void solvefluid(array_t** temperature, array_t** temperature_old,
+                  precision_t cflnumber, precision_t diffusionnumber,
+                  precision_t boundary_temperature);
+  void solvesolid(array_t** temperature, array_t** temperature_old,
+                  precision_t diffusionnumber);
+
   void solvecoupling(precision_t* tf, precision_t* ts);
 
 #ifdef TESTING
@@ -60,10 +65,7 @@ class Pdesolver {
 
  private:
 #ifdef TESTING
-  // These functions solve the governing fluid and
-  // solid equations for a MMS given the slack term as
-  // default or passed lambda expression.
-  bool verify(precision_t* errorf, precision_t* errors, precision_t* iterf,
+  void verify(precision_t* errorf, precision_t* errors, precision_t* iterf,
               precision_t* iters);
 #endif
 
@@ -94,12 +96,11 @@ class Pdesolver {
 
 // DEBUG
 #ifdef TESTING
-  int _n;
   precision_t _k;
-  static constexpr precision_t _tol = 1e-8;
-  static constexpr int _maxiterations = 500000;
-  precision_t* _source_fluid;
-  precision_t* _source_solid;
+  static constexpr precision_t k_tol = 1e-10;
+  static constexpr int k_maxiterations = 500000;
+  array_t _source_fluid;
+  array_t _source_solid;
 #endif
 };
 

@@ -14,6 +14,8 @@
 #ifndef __GLOBAL_HH__
 #define __GLOBAL_HH__
 
+#include <eigen3/Eigen/Dense>
+
 // program properties
 #define __P_NAME "ttessim"
 #define __P_DEF_NTHREADS 4
@@ -23,5 +25,6 @@
 
 // typedefs
 typedef double precision_t;
+typedef Eigen::Array<precision_t, Eigen::Dynamic, 1> array_t;
 
 #endif  //__GLOBAL_HH__
