@@ -79,7 +79,7 @@ void Pdesolver::solvefluid(array_t** temperature, array_t** temperature_old,
 
   **temperature_old += diffusion_tmp;
 
-  std::swap(temperature, temperature_old);
+  std::swap(*temperature, *temperature_old);
 #ifdef TESTING
   **temperature += _source_fluid;
 #endif
