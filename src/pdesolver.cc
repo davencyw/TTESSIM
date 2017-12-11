@@ -118,10 +118,8 @@ void Pdesolver::updateuf(precision_t uf) { _uf = uf; }
 
 void Pdesolver::verify(precision_t* errorf, precision_t* errors,
                        precision_t* iterf, precision_t* iters) {
-  const precision_t alpha(_alphas);
-
   // diffusionnumber < 0.5!
-  const precision_t diffusionnumber(_dt / (_dx * _dx) * alpha);
+  const precision_t diffusionnumber(_dt / (_dx * _dx) * _alphas);
   assert(diffusionnumber <= 0.5);
 
   const precision_t cflnumber(_uf * _dt / _dx);
@@ -134,7 +132,7 @@ void Pdesolver::verify(precision_t* errorf, precision_t* errors,
   array_t lowergridfaces = gridfaces.head(_numcells);
   array_t uppergridfaces = gridfaces.tail(_numcells);
 
-  _source_solid = (_k * _dt * alpha / _dx) *
+  _source_solid = (_k * _dt * _alphas / _dx) *
                   ((_k * uppergridfaces).sin() - (_k * lowergridfaces).sin());
   array_t solution = (_k * grid).cos();
   array_t temperature = solution;
@@ -202,18 +200,20 @@ void Pdesolver::testing() {
   std::cout << "ERRF: " << *errorf << "\t\tITERF: " << *iterf << "\n";
   std::cout << "ERRS: " << *errors << "\t\tITERS: " << *iters << "\n\n";
 
+  precision_t pecletnumber(_uf * _simenv->_storage_height / _alphas);
+
   // output
   std::string filename("testing_OVS_r_" + std::to_string(_simenv->_runhash) +
                        "_f.csv");
   std::string fullpath(_simenv->_outfolder + filename);
   std::ofstream fs;
   fs.open(fullpath, std::ofstream::out | std::ofstream::app);
-  fs << _simenv->_numcells << ";" << *errorf << "\n";
+  fs << _simenv->_numcells << ";" << pecletnumber << ";" << *errorf << "\n";
   fs.close();
   filename = "testing_OVS_r_" + std::to_string(_simenv->_runhash) + "_s.csv";
   fullpath = _simenv->_outfolder + filename;
   fs.open(fullpath, std::ofstream::out | std::ofstream::app);
-  fs << _simenv->_numcells << ";" << *errors << "\n";
+  fs << _simenv->_numcells << ";" << pecletnumber << ";" << *errors << "\n";
   fs.close();
 }
 

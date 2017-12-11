@@ -27,7 +27,7 @@ for i in range(0,2) :
 		    print(npdata[0])
 		    print(npdata[1])
 		    title = "OVS Plot for " + material_name[i] + " phase"
-		    plt.loglog(npdata[0],npdata[1])
+		    plt.loglog(npdata[0],npdata[2])
 		    plt.xlim(npdata[0][0],npdata[0][-1])
 		    plt.title(title)
 		    plt.xlabel("N")
