@@ -10,29 +10,33 @@
 
 bool Tstorageunit::run(unsigned int cycles) {
   for (int cycle_i = 0; cycle_i < cycles; ++cycle_i) {
-    const int state(getstate());
+    for (int phase_i = 0; phase_i < 4; ++phase_i) {
+      // TODO(dave): Update boundary terms!!!
+      const int state(getstate());
+      unsigned int steps(0);
+      if (state == 0) {
+        updatecfl(std::abs(_uf));
+        steps =
+            static_cast<unsigned int>(_simenv._timedurstate0 / _simenv._deltat);
+      } else if (state == 1) {
+        updatecfl(0.0);
+        steps =
+            static_cast<unsigned int>(_simenv._timedurstate1 / _simenv._deltat);
+      } else if (state == 2) {
+        updatecfl(-std::abs(_uf));
+        steps =
+            static_cast<unsigned int>(_simenv._timedurstate2 / _simenv._deltat);
+      } else if (state == 3) {
+        updatecfl(0.0);
+        steps =
+            static_cast<unsigned int>(_simenv._timedurstate3 / _simenv._deltat);
+      }
 
-    unsigned int steps(0);
-    if (state == 0) {
-      updatecfl(std::abs(_uf));
-      steps =
-          static_cast<unsigned int>(_simenv._timedurstate0 / _simenv._deltat);
-    } else if (state == 1) {
-      updatecfl(0.0);
-      steps =
-          static_cast<unsigned int>(_simenv._timedurstate1 / _simenv._deltat);
-    } else if (state == 2) {
-      updatecfl(-std::abs(_uf));
-      steps =
-          static_cast<unsigned int>(_simenv._timedurstate2 / _simenv._deltat);
-    } else if (state == 3) {
-      updatecfl(0.0);
-      steps =
-          static_cast<unsigned int>(_simenv._timedurstate3 / _simenv._deltat);
+      // do stepping in statephase
+      simsteps(steps, _simenv._ops);
     }
-
-    // do stepping in state
-    simsteps(steps, _simenv._ops);
+    computeefficiency();
+    std::cout << "completed cycle " << cycle_i + 1 << "\n";
   }
 }
 
@@ -91,6 +95,8 @@ void Tstorageunit::updatecfl(precision_t uf) {
   _cflnumber = _uf * _simenv._deltat / _dx;
   _pdesolver.updateuf(_uf);
 }
+
+void Tstorageunit::computeefficiency() {}
 
 const bool Tstorageunit::writetocsv(array_t* data, int size,
                                     std::ofstream* stream) {

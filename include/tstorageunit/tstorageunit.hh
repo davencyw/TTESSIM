@@ -130,6 +130,11 @@ class Tstorageunit {
 
   precision_t _time_per_cycle;
 
+  // efficiency
+  precision_t _exergy_flux;
+  precision_t _capacity_factor;
+
+  // pde solver
   Pdesolver _pdesolver;
 };
 
