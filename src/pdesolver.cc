@@ -120,7 +120,7 @@ void Pdesolver::verify(precision_t* errorf, precision_t* errors,
                        precision_t* iterf, precision_t* iters) {
   // diffusionnumber < 0.5!
   const precision_t diffusionnumber(_dt / (_dx * _dx) * _alphas);
-  assert(diffusionnumber <= 0.5);
+  // assert(diffusionnumber <= 0.5);
 
   const precision_t cflnumber(_uf * _dt / _dx);
 

@@ -28,7 +28,7 @@ RHOF=100
 CF=1
 CS=1
 EPS=0.4
-UF=100
+UF=0.1
 HF=1
 HS=1
 

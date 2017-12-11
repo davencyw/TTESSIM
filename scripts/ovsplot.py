@@ -20,16 +20,19 @@ for i in range(0,2) :
 		with open(join(folder,f), 'rb') as csvfile:
 		    csvreader = csv.reader(csvfile, delimiter=';')
 		    data = list(csvreader)
-		    steps = int(len(data))
+		    steps = int(len(data))/4
+		    pecletnumbers = np.array([0.0,0.0,0.0,0.0])
 		    print(steps)
-		    npdata = np.transpose(np.array(data[0:steps],dtype=np.float32))
-		    npdata = np.fliplr(npdata)
-		    print(npdata[0])
-		    print(npdata[1])
+		    for curve in range(0,4):
+		    	npdata = np.transpose(np.array(data[curve*steps:(curve+1)*steps],dtype=np.float32))
+		    	npdata = np.fliplr(npdata)
+		        plt.loglog(npdata[0],npdata[2])
+		        pecletnumbers[curve] = npdata[1][0]
+		    print(pecletnumbers)
 		    title = "OVS Plot for " + material_name[i] + " phase"
-		    plt.loglog(npdata[0],npdata[2])
 		    plt.xlim(npdata[0][0],npdata[0][-1])
 		    plt.title(title)
 		    plt.xlabel("N")
 		    plt.ylabel("Error")
+		    plt.legend(map(str, pecletnumbers))
 		    plt.show()

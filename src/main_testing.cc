@@ -33,11 +33,18 @@ int main(int argc, char const *argv[]) {
 
   const unsigned int incremental(10);
   const unsigned int start(10);
+  array_t heights(4);
+  heights << 0.1, 1.0, 20.0, 100.0;
 
-  for (int i = 1; i < 20; ++i) {
-    simenv._numcells = start + i * incremental;
-    Pdesolver pdesolver(&simenv);
-    pdesolver.testing();
+  // for different peclet numbers
+  for (int j = 0; j < 4; ++j) {
+    // for different meshsizes
+    for (int i = 1; i < 20; ++i) {
+      simenv._numcells = start + i * incremental;
+      simenv._storage_height = heights(j);
+      Pdesolver pdesolver(&simenv);
+      pdesolver.testing();
+    }
   }
 
   return 0;
