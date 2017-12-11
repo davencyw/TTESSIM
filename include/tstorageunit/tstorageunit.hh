@@ -74,6 +74,9 @@ class Tstorageunit {
     *_simenv._fs_solid << _simenv._numcells << ";" << _simenv._deltat << ";"
                        << _simenv._ops << ";" << _simenv._storage_height
                        << "\n";
+
+    _time_per_cycle = _simenv._timedurstate0 + _simenv._timedurstate1 +
+                      _simenv._timedurstate2 + _simenv._timedurstate3;
   };
 
   ~Tstorageunit() {
@@ -88,7 +91,7 @@ class Tstorageunit {
   bool simsteps(const int, const int);
 
   // full sim
-  bool run(precision_t time);
+  bool run(unsigned int cycles);
 
  private:
   const int getstate();
@@ -124,6 +127,7 @@ class Tstorageunit {
   // 2 = idle between charging and discharging (+-)
   // 3 = idle between discharging and charging (-+)
   int _state;
+  precision_t _time_per_cycle;
 
   Pdesolver _pdesolver;
 };

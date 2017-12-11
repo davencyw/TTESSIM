@@ -8,7 +8,7 @@
 #include <functional>
 #include <iostream>
 
-bool Tstorageunit::run(precision_t time) {}
+bool Tstorageunit::run(unsigned int cycles) {}
 
 bool Tstorageunit::simstep() {
   // TODO(dave): implement
@@ -41,7 +41,24 @@ bool Tstorageunit::simsteps(const int steps, const int outputnstep) {
   }
 }
 
-const int Tstorageunit::getstate() { return _state; }
+const int Tstorageunit::getstate() {
+  unsigned int cycles_passed(std::floor(_total_time / _time_per_cycle));
+  precision_t time_in_cycle(_total_time - cycles_passed * _time_per_cycle);
+
+  assert(time_in_cycle <= _time_per_cycle);
+
+  if (time_in_cycle < _simenv._timedurstate0) {
+    return 0;
+  } else if (time_in_cycle < _simenv._timedurstate1) {
+    return 1;
+  } else if (time_in_cycle < _simenv._timedurstate2) {
+    return 2;
+  } else {
+    return 3;
+  }
+
+  return _state;
+}
 
 const bool Tstorageunit::isidle() { return _state > 1; }
 
