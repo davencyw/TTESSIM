@@ -20,6 +20,9 @@ TDS3=0.1
 DELTAT=1e-5
 
 INITTEMP=773
+TEMPC=873
+TEMPD=293
+
 KF=1
 KS=1
 RHOS=10
@@ -48,6 +51,8 @@ clear
 						-h $HEIGHT		\
 						-d $DIAMETER	\
 						-t $INITTEMP	\
+						-tc $TEMPC		\
+						-td $TEMPD		\
 						-c $NUMCYCLES 	\
 						-b $TSTEPSPERC	\
 						--folder $OUTFOLDER	\

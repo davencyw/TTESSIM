@@ -38,6 +38,10 @@ struct SimEnv {
   precision_t _fluid_initemp;
   // timestepsize
   precision_t _deltat;
+  // temperature fluid charge
+  precision_t _fluid_temp_charge;
+  // tempeerature fluid discharge
+  precision_t _fluid_temp_discharge;
 
   // times for states
   precision_t _timedurstate0;

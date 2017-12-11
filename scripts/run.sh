@@ -19,6 +19,9 @@ TDS3=0.1
 DELTAT=0.001
 
 INITTEMP=294
+TEMPC=873
+TEMPD=293
+
 KF=0.1
 KS=0.1
 RHOS=0.1
@@ -47,6 +50,8 @@ clear
 						-h $HEIGHT		\
 						-d $DIAMETER	\
 						-t $INITTEMP	\
+						--tc $TEMPC		\
+						--td $TEMPD		\
 						--folder $OUTFOLDER	\
 						--tds0 $TDS0	\
 						--tds1 $TDS1	\

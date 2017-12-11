@@ -41,6 +41,10 @@ void cmdpars(int argc, char const* argv[], SimEnv& simenv) {
       "storage diameter")(
       ",t", po::value<precision_t>(&(simenv._fluid_initemp))->required(),
       "initial temperature of fluid")(
+      "tc", po::value<precision_t>(&(simenv._fluid_temp_charge))->required(),
+      "charge temperature of fluid")(
+      "td", po::value<precision_t>(&(simenv._fluid_temp_discharge))->required(),
+      "discharge temperature of fluid")(
       "tds0", po::value<precision_t>(&(simenv._timedurstate0))->required(),
       "time duration for state 0")(
       "tds1", po::value<precision_t>(&(simenv._timedurstate1))->required(),

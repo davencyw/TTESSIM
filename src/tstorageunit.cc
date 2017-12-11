@@ -16,6 +16,7 @@ bool Tstorageunit::run(unsigned int cycles) {
       unsigned int steps(0);
       if (state == 0) {
         updatecfl(std::abs(_uf));
+        _boundary_temperature = _simenv._fluid_temp_charge;
         steps =
             static_cast<unsigned int>(_simenv._timedurstate0 / _simenv._deltat);
       } else if (state == 1) {
@@ -24,6 +25,7 @@ bool Tstorageunit::run(unsigned int cycles) {
             static_cast<unsigned int>(_simenv._timedurstate1 / _simenv._deltat);
       } else if (state == 2) {
         updatecfl(-std::abs(_uf));
+        _boundary_temperature = _simenv._fluid_temp_discharge;
         steps =
             static_cast<unsigned int>(_simenv._timedurstate2 / _simenv._deltat);
       } else if (state == 3) {
