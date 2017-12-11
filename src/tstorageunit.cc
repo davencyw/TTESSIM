@@ -49,8 +49,6 @@ bool Tstorageunit::simstep() {
   _pdesolver.solvecoupling(_solid_temperature_ptr, _fluid_temperature_ptr);
 
   _total_time += _simenv._deltat;
-  std::cout << _fluid_temperature[0] << " <<< "
-            << _fluid_temperature[_simenv._numcells - 1] << "\n";
 
   computeefficiency();
 }
