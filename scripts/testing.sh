@@ -3,10 +3,8 @@
 #variables and parameters
 OUTFOLDER="../data/testing/"
 
-#TODO(dave): SPECIFY TESTING PARAMETERS!!
-
 NCELLS=1000
-HEIGHT=1
+HEIGHT=10
 DIAMETER=6
 NUMCYCLES=100
 TSTEPSPERC=10
@@ -17,7 +15,7 @@ TDS1=0.1
 TDS2=0.1
 TDS3=0.1
 
-DELTAT=1e-5
+DELTAT=1e-4
 
 INITTEMP=773
 TEMPC=873
@@ -25,8 +23,8 @@ TEMPD=293
 
 KF=1
 KS=1
-RHOS=10
-RHOF=10
+RHOS=100
+RHOF=100
 CF=1
 CS=1
 EPS=0.4
@@ -51,8 +49,8 @@ clear
 						-h $HEIGHT		\
 						-d $DIAMETER	\
 						-t $INITTEMP	\
-						-tc $TEMPC		\
-						-td $TEMPD		\
+						--tc $TEMPC		\
+						--td $TEMPD		\
 						-c $NUMCYCLES 	\
 						-b $TSTEPSPERC	\
 						--folder $OUTFOLDER	\

@@ -90,7 +90,7 @@ class Pdesolver {
 #ifdef TESTING
   precision_t _k;
   static constexpr precision_t k_tol = 1e-10;
-  static constexpr int k_maxiterations = 500000;
+  static constexpr int k_maxiterations = 5000000;
   array_t _source_fluid;
   array_t _source_solid;
 #endif

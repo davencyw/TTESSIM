@@ -8,9 +8,10 @@ from os.path import isfile, join
 
 folder = "../data/testing/"
 materials = ['f','s']
+material_name = ["fluid","solid"]
 
-for mat in range(0,2) :
-	ending = materials[mat]+".csv"
+for i in range(0,2) :
+	ending = materials[i]+".csv"
 
 	files = [f for f in listdir(folder) if f.endswith(ending)]
 	for f in files :
@@ -25,10 +26,10 @@ for mat in range(0,2) :
 		    npdata = np.fliplr(npdata)
 		    print(npdata[0])
 		    print(npdata[1])
-			#title = "TTESSIM at t=" + (str(ops*dt*(step+1)))
+		    title = "OVS Plot for " + material_name[i] + " phase"
 		    plt.loglog(npdata[0],npdata[1])
 		    plt.xlim(npdata[0][0],npdata[0][-1])
-		    #plt.title(title)
+		    plt.title(title)
 		    plt.xlabel("N")
 		    plt.ylabel("Error")
 		    plt.show()

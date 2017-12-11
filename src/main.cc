@@ -23,6 +23,8 @@ int main(int argc, char const *argv[]) {
             << "        davencyw code  [davencyw.net]\n"
             << "        ETH Zurich\n\n\n";
 
+  omp_set_num_threads(simenv._nThreads);
+
   // start main program
   Tstorageunit tsunit(simenv);
   tsunit.run(simenv._numcycles);
