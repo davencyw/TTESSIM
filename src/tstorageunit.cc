@@ -10,7 +10,29 @@
 
 bool Tstorageunit::run(unsigned int cycles) {
   for (int cycle_i = 0; cycle_i < cycles; ++cycle_i) {
-    const int(getstate());
+    const int state(getstate());
+
+    unsigned int steps(0);
+    if (state == 0) {
+      updatecfl(std::abs(_uf));
+      steps =
+          static_cast<unsigned int>(_simenv._timedurstate0 / _simenv._deltat);
+    } else if (state == 1) {
+      updatecfl(0.0);
+      steps =
+          static_cast<unsigned int>(_simenv._timedurstate1 / _simenv._deltat);
+    } else if (state == 2) {
+      updatecfl(-std::abs(_uf));
+      steps =
+          static_cast<unsigned int>(_simenv._timedurstate2 / _simenv._deltat);
+    } else if (state == 3) {
+      updatecfl(0.0);
+      steps =
+          static_cast<unsigned int>(_simenv._timedurstate3 / _simenv._deltat);
+    }
+
+    // do stepping in state
+    simsteps(steps, _simenv._ops);
   }
 }
 
@@ -22,6 +44,9 @@ bool Tstorageunit::simstep() {
   _pdesolver.solvefluid(&_fluid_temperature_ptr, &_fluid_temperature_o_ptr,
                         _cflnumber, _fluid_diffusionnumber,
                         _boundary_temperature);
+  _pdesolver.solvecoupling(_solid_temperature_ptr, _fluid_temperature_ptr);
+
+  _total_time += _simenv._deltat;
 }
 
 bool Tstorageunit::simsteps(const int steps) { return simsteps(steps, 0); }
