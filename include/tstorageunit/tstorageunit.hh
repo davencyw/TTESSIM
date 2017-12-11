@@ -80,6 +80,13 @@ class Tstorageunit {
                       _simenv._timedurstate2 + _simenv._timedurstate3;
 
     _exergy_flux_array = array_t::Zero(4);
+    _thermal_energy_array = array_t::Zero(2);
+    _max_thermal_energy =
+        (_simenv._epsilon * _simenv._rhof * _simenv._cf +
+         (1.0 - _simenv._epsilon) * _simenv._rhos * _simenv._cs) *
+        __SC_PI / 4.0 * _simenv._storage_diameter * _simenv._storage_diameter *
+        _simenv._storage_height *
+        (_simenv._fluid_temp_charge - _simenv._fluid_temp_discharge);
   };
 
   ~Tstorageunit() {
@@ -99,13 +106,14 @@ class Tstorageunit {
  private:
   // state
   // 0 = charging (+)
-  // 1 = discharging (-)
-  // 2 = idle between charging and discharging (+-)
+  // 1 = idle between charging and discharging (+-)
+  // 2 = discharging (-)
   // 3 = idle between discharging and charging (-+)
   const int getstate();
   void updatecfl(precision_t uf);
 
   void computeefficiency();
+  void computecapacityfactor();
 
   // output functions
   const bool writetocsv(array_t*, int, std::ofstream* stream);
@@ -138,6 +146,8 @@ class Tstorageunit {
   precision_t _exergy_flux;
   array_t _exergy_flux_array;
   precision_t _capacity_factor;
+  precision_t _max_thermal_energy;
+  array_t _thermal_energy_array;
 
   // pde solver
   Pdesolver _pdesolver;

@@ -11,7 +11,6 @@
 #include <fstream>
 #include <iostream>
 
-// TODO(dave): Implement alpha
 // TODO(dave): write documentation
 // TODO(dave): write gridview/gridclass!
 // URGENT_TODO(dave): write memory view for segments!! -^^^^

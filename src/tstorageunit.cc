@@ -15,6 +15,8 @@ bool Tstorageunit::run(unsigned int cycles) {
       const int state(getstate());
       unsigned int steps(0);
       if (state == 0) {
+        // compute before charging
+        computecapacityfactor();
         updatecfl(std::abs(_uf));
         _boundary_temperature = _simenv._fluid_temp_charge;
         steps =
@@ -24,6 +26,8 @@ bool Tstorageunit::run(unsigned int cycles) {
         steps =
             static_cast<unsigned int>(_simenv._timedurstate1 / _simenv._deltat);
       } else if (state == 2) {
+        // compute before discharging
+        computecapacityfactor();
         updatecfl(-std::abs(_uf));
         _boundary_temperature = _simenv._fluid_temp_discharge;
         steps =
@@ -132,6 +136,37 @@ void Tstorageunit::computeefficiency() {
   // update exergy efficiency
   _exergy_flux = (_exergy_flux_array(1) - _exergy_flux_array(0)) /
                  (_exergy_flux_array(2) - _exergy_flux_array(3));
+}
+
+void Tstorageunit::computecapacityfactor() {
+  const int state(getstate());
+  assert(state == 0 || state == 2);
+
+  const precision_t prefactor(__SC_PI / 4.0 * _simenv._storage_diameter *
+                              _simenv._storage_diameter);
+  const precision_t fluid_difference =
+      ((_fluid_temperature - _simenv._fluid_temp_charge) * _dx).sum();
+  const precision_t solid_difference =
+      ((_solid_temperature - _simenv._fluid_temp_discharge) * _dx).sum();
+  const precision_t thermal_energy =
+      prefactor +
+      (_simenv._epsilon * _simenv._rhof * _simenv._cf * fluid_difference +
+       (1.0 - _simenv._epsilon) * _simenv._rhos * _simenv._cs *
+           solid_difference);
+
+  std::cout << thermal_energy << std::endl;
+
+  if (state == 0) {
+    // before charging
+    _thermal_energy_array(0) = thermal_energy;
+
+  } else {
+    // before discharging
+    _thermal_energy_array(1) = thermal_energy;
+  }
+
+  _capacity_factor = (_thermal_energy_array(1) - _thermal_energy_array(0)) /
+                     _max_thermal_energy;
 }
 
 const bool Tstorageunit::writetocsv(array_t* data, int size,

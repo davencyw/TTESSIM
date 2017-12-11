@@ -30,16 +30,13 @@ int main(int argc, char const *argv[]) {
 
   // start testing
 
-  unsigned int incremental(100);
+  const unsigned int incremental(100);
 
   for (int i = 1; i < 20; ++i) {
     simenv._numcells = i * incremental;
     Pdesolver pdesolver(&simenv);
     pdesolver.testing();
   }
-
-  // TODO(dave): OVS -> change simenv and start testing again, file descriptor
-  // is still the same
 
   return 0;
 }
