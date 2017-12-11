@@ -21,7 +21,7 @@ for i in range(0,2) :
 		    csvreader = csv.reader(csvfile, delimiter=';')
 		    data = list(csvreader)
 		    steps = int(len(data))/4
-		    pecletnumbers = np.array([0.0,0.0,0.0,0.0])
+		    pecletnumbers = np.zeros(4)
 		    print(steps)
 		    for curve in range(0,4):
 		    	npdata = np.transpose(np.array(data[curve*steps:(curve+1)*steps],dtype=np.float32))

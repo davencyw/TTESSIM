@@ -10,37 +10,32 @@
 
 bool Tstorageunit::run(unsigned int cycles) {
   for (int cycle_i = 0; cycle_i < cycles; ++cycle_i) {
-    for (int phase_i = 0; phase_i < 4; ++phase_i) {
-      // TODO(dave): change deltat in cmdparser!!!
-      const int state(getstate());
-      unsigned int steps(0);
-      if (state == 0) {
-        // compute before charging
-        computecapacityfactor();
-        updatecfl(std::abs(_uf));
-        _boundary_temperature = _simenv._fluid_temp_charge;
-        steps =
-            static_cast<unsigned int>(_simenv._timedurstate0 / _simenv._deltat);
-      } else if (state == 1) {
-        updatecfl(0.0);
-        steps =
-            static_cast<unsigned int>(_simenv._timedurstate1 / _simenv._deltat);
-      } else if (state == 2) {
-        // compute before discharging
-        computecapacityfactor();
-        updatecfl(-std::abs(_uf));
-        _boundary_temperature = _simenv._fluid_temp_discharge;
-        steps =
-            static_cast<unsigned int>(_simenv._timedurstate2 / _simenv._deltat);
-      } else if (state == 3) {
-        updatecfl(0.0);
-        steps =
-            static_cast<unsigned int>(_simenv._timedurstate3 / _simenv._deltat);
-      }
+    // charging
+    // compute before charging computecapacityfactor();
+    updatecfl(std::abs(_uf));
+    _boundary_temperature = _simenv._fluid_temp_charge;
+    unsigned int steps =
+        static_cast<unsigned int>(_simenv._timedurstate0 / _simenv._deltat);
+    simsteps(steps, _simenv._ops);
 
-      // do stepping in statephase
-      simsteps(steps, _simenv._ops);
-    }
+    // idle
+    updatecfl(0.0);
+    steps = static_cast<unsigned int>(_simenv._timedurstate1 / _simenv._deltat);
+    simsteps(steps, _simenv._ops);
+
+    // discharging
+    // compute before discharging
+    computecapacityfactor();
+    updatecfl(-std::abs(_uf));
+    _boundary_temperature = _simenv._fluid_temp_discharge;
+    steps = static_cast<unsigned int>(_simenv._timedurstate2 / _simenv._deltat);
+    simsteps(steps, _simenv._ops);
+
+    // idle
+    updatecfl(0.0);
+    steps = static_cast<unsigned int>(_simenv._timedurstate3 / _simenv._deltat);
+    simsteps(steps, _simenv._ops);
+
     std::cout << "completed cycle " << cycle_i + 1 << "\n";
   }
 }
@@ -54,6 +49,8 @@ bool Tstorageunit::simstep() {
   _pdesolver.solvecoupling(_solid_temperature_ptr, _fluid_temperature_ptr);
 
   _total_time += _simenv._deltat;
+  std::cout << _fluid_temperature[0] << " <<< "
+            << _fluid_temperature[_simenv._numcells - 1] << "\n";
 
   computeefficiency();
 }
