@@ -11,7 +11,7 @@
 bool Tstorageunit::run(unsigned int cycles) {
   for (int cycle_i = 0; cycle_i < cycles; ++cycle_i) {
     for (int phase_i = 0; phase_i < 4; ++phase_i) {
-      // TODO(dave): Update boundary terms!!!
+      // TODO(dave): change deltat in cmdparser!!!
       const int state(getstate());
       unsigned int steps(0);
       if (state == 0) {
@@ -37,14 +37,11 @@ bool Tstorageunit::run(unsigned int cycles) {
       // do stepping in statephase
       simsteps(steps, _simenv._ops);
     }
-    computeefficiency();
     std::cout << "completed cycle " << cycle_i + 1 << "\n";
   }
 }
 
 bool Tstorageunit::simstep() {
-  // TODO(dave): implement
-
   _pdesolver.solvesolid(&_solid_temperature_ptr, &_solid_temperature_o_ptr,
                         _solid_diffusionnumber);
   _pdesolver.solvefluid(&_fluid_temperature_ptr, &_fluid_temperature_o_ptr,
@@ -53,6 +50,8 @@ bool Tstorageunit::simstep() {
   _pdesolver.solvecoupling(_solid_temperature_ptr, _fluid_temperature_ptr);
 
   _total_time += _simenv._deltat;
+
+  computeefficiency();
 }
 
 bool Tstorageunit::simsteps(const int steps) { return simsteps(steps, 0); }
@@ -98,12 +97,46 @@ void Tstorageunit::updatecfl(precision_t uf) {
   _pdesolver.updateuf(_uf);
 }
 
-void Tstorageunit::computeefficiency() {}
+void Tstorageunit::computeefficiency() {
+  int state(getstate());
+
+  if (state == 1 || state == 3) {
+    return;
+  }
+
+  unsigned int inindex(0);
+  unsigned int outindex(_simenv._numcells - 1);
+
+  // discharge hhase has index 1 in _exergy_flux_array and in/out locations are
+  // swapped
+  if (state == 2) {
+    state = 1;
+    std::swap(inindex, outindex);
+  };
+
+  // in
+  _exergy_flux_array(state) +=
+      _simenv._deltat *
+      (10 * _simenv._cf *
+       (_fluid_temperature[inindex] - _simenv._fluid_initemp -
+        _simenv._fluid_initemp *
+            std::log(_fluid_temperature[inindex] / _simenv._fluid_initemp)));
+  // out
+  _exergy_flux_array(state + 1) +=
+      _simenv._deltat *
+      (10 * _simenv._cf *
+       (_fluid_temperature[outindex] - _simenv._fluid_initemp -
+        _simenv._fluid_initemp *
+            std::log(_fluid_temperature[outindex] / _simenv._fluid_initemp)));
+
+  // update exergy efficiency
+  _exergy_flux = (_exergy_flux_array(1) - _exergy_flux_array(0)) /
+                 (_exergy_flux_array(2) - _exergy_flux_array(3));
+}
 
 const bool Tstorageunit::writetocsv(array_t* data, int size,
                                     std::ofstream* stream) {
   // TODO(dave): Optimize
-
   for (int i = 0; i < size - 1; ++i) {
     *stream << (*data)(i) << ";";
   }

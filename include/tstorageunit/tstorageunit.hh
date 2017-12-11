@@ -78,6 +78,8 @@ class Tstorageunit {
 
     _time_per_cycle = _simenv._timedurstate0 + _simenv._timedurstate1 +
                       _simenv._timedurstate2 + _simenv._timedurstate3;
+
+    _exergy_flux_array = array_t::Zero(4);
   };
 
   ~Tstorageunit() {
@@ -134,6 +136,7 @@ class Tstorageunit {
 
   // efficiency
   precision_t _exergy_flux;
+  array_t _exergy_flux_array;
   precision_t _capacity_factor;
 
   // pde solver
