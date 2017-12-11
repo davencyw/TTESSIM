@@ -103,6 +103,8 @@ class Tstorageunit {
   const int getstate();
   void updatecfl(precision_t uf);
 
+  void computeefficiency();
+
   // output functions
   const bool writetocsv(array_t*, int, std::ofstream* stream);
 
