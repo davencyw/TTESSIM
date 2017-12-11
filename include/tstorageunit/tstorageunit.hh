@@ -30,7 +30,6 @@
 class Tstorageunit {
  public:
   Tstorageunit(const SimEnv& simenv) : _simenv(simenv) {
-    _state = 0;
     _fluid_temperature =
         array_t::Constant(_simenv._numcells, _simenv._fluid_initemp);
     _solid_temperature =
@@ -49,6 +48,8 @@ class Tstorageunit {
     precision_t inittemp(_simenv._fluid_initemp);
 
     _dx = _simenv._storage_height / static_cast<precision_t>(_simenv._numcells);
+    _uf = _simenv._uf;
+    _total_time = 0.0;
 
     precision_t alphaf =
         _simenv._kf / (_simenv._epsilon * _simenv._rhof * _simenv._cf);
@@ -57,7 +58,7 @@ class Tstorageunit {
 
     _solid_diffusionnumber = _simenv._deltat / (_dx * _dx) * alphas;
     _fluid_diffusionnumber = _simenv._deltat / (_dx * _dx) * alphaf;
-    _cflnumber = _simenv._uf * _simenv._deltat / _dx;
+    updatecfl(_uf);
     // TODO(dave): Check!
     _boundary_temperature = _simenv._fluid_initemp;
 
@@ -94,8 +95,13 @@ class Tstorageunit {
   bool run(unsigned int cycles);
 
  private:
+  // state
+  // 0 = charging (+)
+  // 1 = discharging (-)
+  // 2 = idle between charging and discharging (+-)
+  // 3 = idle between discharging and charging (-+)
   const int getstate();
-  const bool isidle();
+  void updatecfl(precision_t uf);
 
   // output functions
   const bool writetocsv(array_t*, int, std::ofstream* stream);
@@ -120,13 +126,8 @@ class Tstorageunit {
   precision_t _cflnumber;
   precision_t _boundary_temperature;
   precision_t _dx;
+  precision_t _uf;
 
-  // state
-  // 0 = charging (+)
-  // 1 = discharging (-)
-  // 2 = idle between charging and discharging (+-)
-  // 3 = idle between discharging and charging (-+)
-  int _state;
   precision_t _time_per_cycle;
 
   Pdesolver _pdesolver;

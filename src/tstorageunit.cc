@@ -8,7 +8,11 @@
 #include <functional>
 #include <iostream>
 
-bool Tstorageunit::run(unsigned int cycles) {}
+bool Tstorageunit::run(unsigned int cycles) {
+  for (int cycle_i = 0; cycle_i < cycles; ++cycle_i) {
+    const int(getstate());
+  }
+}
 
 bool Tstorageunit::simstep() {
   // TODO(dave): implement
@@ -56,11 +60,12 @@ const int Tstorageunit::getstate() {
   } else {
     return 3;
   }
-
-  return _state;
 }
 
-const bool Tstorageunit::isidle() { return _state > 1; }
+void Tstorageunit::updatecfl(precision_t uf) {
+  _cflnumber = _uf * _simenv._deltat / _dx;
+  _pdesolver.updateuf(_uf);
+}
 
 const bool Tstorageunit::writetocsv(array_t* data, int size,
                                     std::ofstream* stream) {
