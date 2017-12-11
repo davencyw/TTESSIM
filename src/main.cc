@@ -14,8 +14,8 @@ int main(int argc, char const *argv[]) {
   SimEnv simenv;
   cmdpars(argc, argv, simenv);
 
-  auto now = std::chrono::system_clock::now();
-  auto starttime = std::chrono::system_clock::to_time_t(now);
+  auto start = std::chrono::system_clock::now();
+  auto starttime = std::chrono::system_clock::to_time_t(start);
 
   // create terminal output
   std::cout << "\n\n\n\n\n"
@@ -27,13 +27,17 @@ int main(int argc, char const *argv[]) {
             << "        davencyw code  [davencyw.net]\n"
             << "        ETH Zurich\n\n\n"
             << "\n\n\n\n"
-            << "started at: " << std::ctime(&starttime) << "\n\n\n\n";
+            << "started at: " << std::ctime(&starttime) << "\n";
 
   omp_set_num_threads(simenv._nThreads);
 
   // start main program
   Tstorageunit tsunit(simenv);
   tsunit.run(simenv._numcycles);
+
+  auto end = std::chrono::system_clock::now();
+  auto elapsed = std::chrono::duration_cast<std::chrono::minutes>(end - start);
+  std::cout << "elapsed: " << elapsed.count() << "\n\n\n";
 
   return 0;
 }
