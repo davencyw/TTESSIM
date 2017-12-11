@@ -154,8 +154,6 @@ void Tstorageunit::computecapacityfactor() {
        (1.0 - _simenv._epsilon) * _simenv._rhos * _simenv._cs *
            solid_difference);
 
-  std::cout << thermal_energy << std::endl;
-
   if (state == 0) {
     // before charging
     _thermal_energy_array(0) = thermal_energy;
