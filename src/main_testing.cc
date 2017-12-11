@@ -32,7 +32,7 @@ int main(int argc, char const *argv[]) {
 
   unsigned int incremental(100);
 
-  for (int i = 1; i < 4 /*20*/; ++i) {
+  for (int i = 1; i < 20; ++i) {
     simenv._numcells = i * incremental;
     Pdesolver pdesolver(&simenv);
     pdesolver.testing();

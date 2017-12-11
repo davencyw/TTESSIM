@@ -25,31 +25,42 @@
 #include <iostream>
 #include <string>
 
+#include <eigen3/Eigen/Dense>
+
 class Tstorageunit {
  public:
   Tstorageunit(const SimEnv& simenv) : _simenv(simenv) {
     _state = 0;
     _fluid_temperature =
-        (precision_t*)_mm_malloc(sizeof(precision_t) * _simenv._numcells, 32);
+        array_t::Constant(_simenv._numcells, _simenv._fluid_initemp);
     _solid_temperature =
-        (precision_t*)_mm_malloc(sizeof(precision_t) * _simenv._numcells, 32);
+        array_t::Constant(_simenv._numcells, _simenv._fluid_initemp);
     _fluid_temperature_o =
-        (precision_t*)_mm_malloc(sizeof(precision_t) * _simenv._numcells, 32);
+        array_t::Constant(_simenv._numcells, _simenv._fluid_initemp);
     _solid_temperature_o =
-        (precision_t*)_mm_malloc(sizeof(precision_t) * _simenv._numcells, 32);
+        array_t::Constant(_simenv._numcells, _simenv._fluid_initemp);
+
+    _fluid_temperature_ptr = &_fluid_temperature;
+    _solid_temperature_ptr = &_solid_temperature;
+    _fluid_temperature_o_ptr = &_fluid_temperature_o;
+    _solid_temperature_o_ptr = &_solid_temperature_o;
 
     _pdesolver = Pdesolver(&simenv);
     precision_t inittemp(_simenv._fluid_initemp);
 
-    for (int i = 0; i < _simenv._numcells; ++i) {
-      _fluid_temperature[i] = _simenv._fluid_initemp;
-      _solid_temperature[i] = _simenv._fluid_initemp;
-      _fluid_temperature_o[i] = _simenv._fluid_initemp;
-      _solid_temperature_o[i] = _simenv._fluid_initemp;
-      _solid_temperature[i] = _simenv._fluid_initemp;
-    }
+    _dx = _simenv._storage_height / static_cast<precision_t>(_simenv._numcells);
 
-    // TODO(dave): add outputstep such that physical timesteps are known
+    precision_t alphaf =
+        _simenv._kf / (_simenv._epsilon * _simenv._rhof * _simenv._cf);
+    precision_t alphas =
+        _simenv._ks / ((1 - _simenv._epsilon) * _simenv._rhos * _simenv._cs);
+
+    _solid_diffusionnumber = _simenv._deltat / (_dx * _dx) * alphas;
+    _fluid_diffusionnumber = _simenv._deltat / (_dx * _dx) * alphaf;
+    _cflnumber = _simenv._uf * _simenv._deltat / _dx;
+    // TODO(dave): Check!
+    _boundary_temperature = _simenv._fluid_initemp;
+
     // initialize files with metadata
 
     _simenv._fs_fluid->open(_simenv._fullpath_fluid,
@@ -66,11 +77,6 @@ class Tstorageunit {
   };
 
   ~Tstorageunit() {
-    _mm_free(_fluid_temperature);
-    _mm_free(_fluid_temperature_o);
-    _mm_free(_solid_temperature);
-    _mm_free(_solid_temperature_o);
-
     // Close fs
     _simenv._fs_fluid->close();
     _simenv._fs_solid->close();
@@ -81,22 +87,37 @@ class Tstorageunit {
   bool simsteps(const int);
   bool simsteps(const int, const int);
 
+  // full sim
+  bool run(precision_t time);
+
  private:
   const int getstate();
   const bool isidle();
 
   // output functions
-  const bool writetocsv(precision_t*, int, std::ofstream* stream);
+  const bool writetocsv(array_t*, int, std::ofstream* stream);
 
   // simulation environment
   const SimEnv _simenv;
 
   // physical properties of system
   precision_t _total_time;
-  precision_t* _fluid_temperature;
-  precision_t* _solid_temperature;
-  precision_t* _fluid_temperature_o;
-  precision_t* _solid_temperature_o;
+  array_t _fluid_temperature;
+  array_t _solid_temperature;
+  array_t _fluid_temperature_o;
+  array_t _solid_temperature_o;
+
+  array_t* _fluid_temperature_ptr;
+  array_t* _solid_temperature_ptr;
+  array_t* _fluid_temperature_o_ptr;
+  array_t* _solid_temperature_o_ptr;
+
+  precision_t _solid_diffusionnumber;
+  precision_t _fluid_diffusionnumber;
+  precision_t _cflnumber;
+  precision_t _boundary_temperature;
+  precision_t _dx;
+
   // state
   // 0 = charging (+)
   // 1 = discharging (-)

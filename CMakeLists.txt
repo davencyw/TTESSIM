@@ -56,8 +56,9 @@ target_compile_definitions(pdesolver_testing PRIVATE TESTING)
 add_library(tstorageunit ${TSTORAGEUNITSRC})
 
 add_executable (ttessim ${SIMSRC})
-target_link_libraries(ttessim pdesolver tstorageunit)
+target_link_libraries(tstorageunit pdesolver)
+target_link_libraries(ttessim tstorageunit)
 
 add_executable (ttessim_testing  ${TESTINGSRC})
 target_compile_definitions(ttessim_testing PRIVATE TESTING)
-target_link_libraries(ttessim_testing pdesolver_testing tstorageunit)
+target_link_libraries(ttessim_testing pdesolver_testing)

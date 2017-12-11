@@ -113,6 +113,8 @@ void Pdesolver::solvesolid(array_t** temperature, array_t** temperature_old,
 #endif
 }
 
+void Pdesolver::updateuf(precision_t uf) { _uf = uf; }
+
 #ifdef TESTING
 
 void Pdesolver::verify(precision_t* errorf, precision_t* errors,
