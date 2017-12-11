@@ -1,3 +1,4 @@
+#include <chrono>
 #include <climits>
 
 #include <omp.h>
@@ -13,6 +14,9 @@ int main(int argc, char const *argv[]) {
   SimEnv simenv;
   cmdpars(argc, argv, simenv);
 
+  auto now = std::chrono::system_clock::now();
+  auto starttime = std::chrono::system_clock::to_time_t(now);
+
   // create terminal output
   std::cout << "\n\n\n\n\n"
             << "_______ _______ _______ _______ _______     _______\n"
@@ -21,7 +25,9 @@ int main(int argc, char const *argv[]) {
             << "\n\n\n\n"
             << "author: david schmidig [david@davencyw.net]\n"
             << "        davencyw code  [davencyw.net]\n"
-            << "        ETH Zurich\n\n\n";
+            << "        ETH Zurich\n\n\n"
+            << "\n\n\n\n"
+            << "started at: " << std::ctime(&starttime) << "\n\n\n\n";
 
   omp_set_num_threads(simenv._nThreads);
 
