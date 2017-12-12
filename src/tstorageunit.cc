@@ -118,7 +118,7 @@ void Tstorageunit::computeefficiency() {
   unsigned int inindex(0);
   unsigned int outindex(_simenv._numcells - 1);
 
-  // discharge phase has index 1 in _exergy_flux_array and in/out locations are
+  // discharge phase has index 2 in _exergy_flux_array and in/out locations are
   // swapped
   if (state == 2) {
     std::swap(inindex, outindex);
@@ -140,8 +140,9 @@ void Tstorageunit::computeefficiency() {
             std::log(_fluid_temperature[outindex] / _simenv._fluid_initemp)));
 
   // update exergy efficiency
-  _exergy_flux = (_exergy_flux_array(1) - _exergy_flux_array(0)) /
-                 (_exergy_flux_array(2) - _exergy_flux_array(3));
+  _exergy_flux =
+      (_exergy_flux_array(2) -
+       _exergy_flux_array(3) / (_exergy_flux_array(1) - _exergy_flux_array(0)));
 }
 
 void Tstorageunit::computecapacityfactor(bool charged) {
