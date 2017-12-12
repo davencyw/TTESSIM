@@ -5,16 +5,16 @@ OUTFOLDER="../data/out/"
 
 
 NCELLS=512
-HEIGHT=5.968
-DIAMETER=4
+HEIGHT=1.492
+DIAMETER=8
 NUMCYCLES=10
 TSTEPSPERC=0
 OPS=0
 
-TDS0=1
-TDS1=1
-TDS2=1
-TDS3=1
+TDS0=21600
+TDS1=21600
+TDS2=21600
+TDS3=21600
 
 DELTAT=0.001
 
@@ -29,9 +29,8 @@ RHOF=1835.6
 CF=1511.8
 CS=900.0
 EPS=0.4
-UF=0.000108
-HF=480
-HS=480
+UF=2.709e-5
+HF=960
 
 #___________________________
 
@@ -69,4 +68,4 @@ clear
 						--uf $UF		\
 						--dt $DELTAT 	\
 						--hf $HF 	    \
-						--hs $HS 	    \
+						--hs $HF 	    \

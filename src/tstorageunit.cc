@@ -118,10 +118,9 @@ void Tstorageunit::computeefficiency() {
   unsigned int inindex(0);
   unsigned int outindex(_simenv._numcells - 1);
 
-  // discharge hhase has index 1 in _exergy_flux_array and in/out locations are
+  // discharge phase has index 1 in _exergy_flux_array and in/out locations are
   // swapped
   if (state == 2) {
-    state = 1;
     std::swap(inindex, outindex);
   };
 
