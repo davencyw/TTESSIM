@@ -34,7 +34,7 @@ for mat in range(0,2) :
 			    dx = height / float(numcells)
 			    endrange = dx * float(numcells) + (0.5 * dx)
 			    x = np.arange(0.5*dx,endrange,dx)
-			    title = materials[mat] + " TTESSIM at t=" + (str(ops*dt*(step+1)))
+			    title = materials[mat] + " TTESSIM at t=" + (str(ops*dt*(step+1))) + " with n=" + str(int(numcells))
 			    plt.plot(x,npdata[:,step])
 			    plt.xlim([0.5*dx,endrange])
 			    plt.title(title)

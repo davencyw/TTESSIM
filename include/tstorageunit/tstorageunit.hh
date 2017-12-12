@@ -30,6 +30,8 @@
 class Tstorageunit {
  public:
   Tstorageunit(const SimEnv& simenv) : _simenv(simenv) {
+    _state = 0;
+
     _fluid_temperature =
         array_t::Constant(_simenv._numcells, _simenv._fluid_initemp);
     _solid_temperature =
@@ -113,7 +115,7 @@ class Tstorageunit {
   void updatecfl(precision_t uf);
 
   void computeefficiency();
-  void computecapacityfactor();
+  void computecapacityfactor(bool charged);
 
   // output functions
   const bool writetocsv(array_t*, int, std::ofstream* stream);
@@ -122,6 +124,7 @@ class Tstorageunit {
   const SimEnv _simenv;
 
   // physical properties of system
+  int _state;
   precision_t _total_time;
   array_t _fluid_temperature;
   array_t _solid_temperature;

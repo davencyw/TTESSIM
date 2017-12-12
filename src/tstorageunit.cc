@@ -11,7 +11,9 @@
 bool Tstorageunit::run(unsigned int cycles) {
   for (int cycle_i = 0; cycle_i < cycles; ++cycle_i) {
     // charging
-    // compute before charging computecapacityfactor();
+    // compute before charging
+    _state = 0;
+    computecapacityfactor(false);
     updatecfl(std::abs(_uf));
     _boundary_temperature = _simenv._fluid_temp_charge;
     unsigned int steps =
@@ -19,25 +21,34 @@ bool Tstorageunit::run(unsigned int cycles) {
     simsteps(steps, _simenv._ops);
 
     // idle
+    _state = 1;
     updatecfl(0.0);
     steps = static_cast<unsigned int>(_simenv._timedurstate1 / _simenv._deltat);
     simsteps(steps, _simenv._ops);
 
     // discharging
     // compute before discharging
-    computecapacityfactor();
+    _state = 2;
+    computecapacityfactor(true);
     updatecfl(-std::abs(_uf));
     _boundary_temperature = _simenv._fluid_temp_discharge;
     steps = static_cast<unsigned int>(_simenv._timedurstate2 / _simenv._deltat);
     simsteps(steps, _simenv._ops);
 
     // idle
+    _state = 3;
     updatecfl(0.0);
     steps = static_cast<unsigned int>(_simenv._timedurstate3 / _simenv._deltat);
     simsteps(steps, _simenv._ops);
 
     std::cout << "completed cycle " << cycle_i + 1 << "\n";
   }
+
+  // output capacity factor and exergy flux
+  std::cout << "\n______________________________________________\n";
+  std::cout << "_capacity_factor:\t" << _capacity_factor << "\n";
+  std::cout << "_exergy_flux    :\t" << _exergy_flux << "\n";
+  std::cout << "______________________________________________\n\n";
 }
 
 bool Tstorageunit::simstep() {
@@ -56,7 +67,7 @@ bool Tstorageunit::simstep() {
 bool Tstorageunit::simsteps(const int steps) { return simsteps(steps, 0); }
 
 // writes output every outputnstep-step. If outputnstep is 0, nothing will be
-// written
+// written until the end
 bool Tstorageunit::simsteps(const int steps, const int outputnstep) {
   int opns(outputnstep);
 
@@ -82,9 +93,10 @@ const int Tstorageunit::getstate() {
 
   if (time_in_cycle < _simenv._timedurstate0) {
     return 0;
-  } else if (time_in_cycle < _simenv._timedurstate1) {
+  } else if (time_in_cycle < _simenv._timedurstate1 + _simenv._timedurstate0) {
     return 1;
-  } else if (time_in_cycle < _simenv._timedurstate2) {
+  } else if (time_in_cycle < _simenv._timedurstate2 + _simenv._timedurstate1 +
+                                 _simenv._timedurstate0) {
     return 2;
   } else {
     return 3;
@@ -133,10 +145,7 @@ void Tstorageunit::computeefficiency() {
                  (_exergy_flux_array(2) - _exergy_flux_array(3));
 }
 
-void Tstorageunit::computecapacityfactor() {
-  const int state(getstate());
-  assert(state == 0 || state == 2);
-
+void Tstorageunit::computecapacityfactor(bool charged) {
   const precision_t prefactor(__SC_PI / 4.0 * _simenv._storage_diameter *
                               _simenv._storage_diameter);
   const precision_t fluid_difference =
@@ -149,11 +158,11 @@ void Tstorageunit::computecapacityfactor() {
        (1.0 - _simenv._epsilon) * _simenv._rhos * _simenv._cs *
            solid_difference);
 
-  if (state == 0) {
+  if (!charged) {
     // before charging
     _thermal_energy_array(0) = thermal_energy;
 
-  } else {
+  } else if (charged) {
     // before discharging
     _thermal_energy_array(1) = thermal_energy;
   }
