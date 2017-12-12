@@ -140,9 +140,8 @@ void Tstorageunit::computeefficiency() {
             std::log(_fluid_temperature[outindex] / _simenv._fluid_initemp)));
 
   // update exergy efficiency
-  _exergy_flux =
-      (_exergy_flux_array(2) -
-       _exergy_flux_array(3) / (_exergy_flux_array(1) - _exergy_flux_array(0)));
+  _exergy_flux = (_exergy_flux_array(2) - _exergy_flux_array(3)) /
+                 (_exergy_flux_array(1) - _exergy_flux_array(0));
 }
 
 void Tstorageunit::computecapacityfactor(bool charged) {
