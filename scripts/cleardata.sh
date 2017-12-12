@@ -11,4 +11,4 @@ for file in $(find ../data/out/ -name "*.csv"); do
 	echo "deleting " $file
 done
 
-rm ../data/out/*
+rm ../data/out/* -r

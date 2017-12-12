@@ -36,8 +36,9 @@ int main(int argc, char const *argv[]) {
   tsunit.run(simenv._numcycles);
 
   auto end = std::chrono::system_clock::now();
-  auto elapsed = std::chrono::duration_cast<std::chrono::minutes>(end - start);
-  std::cout << "elapsed: " << elapsed.count() << "\n\n\n";
+  auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+  std::cout << "elapsed: " << static_cast<float>(elapsed.count()) / 60.0f
+            << " minutes\n\n\n";
 
   return 0;
 }

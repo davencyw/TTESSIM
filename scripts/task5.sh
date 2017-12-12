@@ -3,9 +3,9 @@
 #variables and parameters
 OUTFOLDER="../data/out/"
 
-#TODO(dave): hf, hs, uf!!
+#TODO(dave): hf, hs
 
-NCELLS=512
+NCELLS=16
 HEIGHT=1
 DIAMETER=1
 NUMCYCLES=1
@@ -17,22 +17,22 @@ TDS1=0
 TDS2=0
 TDS3=0
 
-DELTAT=0.00001
+DELTAT=0.0001
 
 INITTEMP=293
 TEMPC=873
 TEMPD=293
 
-KF=2.0
-KS=0.52
+KF=0.52
+KS=2.0
 RHOS=2600
 RHOF=1835.6
 CF=1511.8
 CS=900.0
 EPS=0.4
 UF=0.00001734
-HF=1
-HS=1
+HF=120
+HS=120
 
 #___________________________
 
